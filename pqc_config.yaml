@@ -1,0 +1,59 @@
+# ============================================================
+# pqc_config.yaml
+# Enterprise Cryptographic Policy & Migration Configuration
+# ============================================================
+
+version: "1.0"
+
+policy:
+  # Enforce policy failure if findings meet or exceed this threshold
+  # Options: CRITICAL, HIGH, MEDIUM, LOW, NONE
+  fail_on_severity: "CRITICAL"
+
+  # Maximum allowed legacy cryptographic instances before hard build block
+  max_allowed_findings: 0
+
+  # Target NIST Post-Quantum Standards
+  targets:
+    key_encapsulation: "ML-KEM-768"     # FIPS 203 (Security Category 3)
+    digital_signature: "ML-DSA-65"      # FIPS 204 (Security Category 3)
+    symmetric_ciphers: "AES-256-GCM"    # NIST SP 800-38D (Quantum-safe under Grover)
+    hash_functions: "SHA-3-256"         # FIPS 202 (Quantum-safe preimage & collision)
+
+  # Hybrid Classical + PQC Transition Configuration
+  hybrid_mode:
+    enabled: true
+    pair_kem: "X25519_ML-KEM-768"
+    pair_sig: "Ed25519_ML-DSA-65"
+
+scanner:
+  # File globs to scan
+  include_patterns:
+    - "**/*.py"
+    - "**/*.java"
+
+  # Paths to exclude from analysis
+  exclude_patterns:
+    - "**/.venv/**"
+    - "**/venv/**"
+    - "**/node_modules/**"
+    - "**/tests/**"
+    - "**/test_*/**"
+    - "**/vendor/**"
+    - "**/build/**"
+    - "**/dist/**"
+
+audit:
+  # Cryptographic tamper-evidence
+  hash_algorithm: "SHA-256"
+  retention_days: 365
+  output_directory: "audit_outputs"
+  formats:
+    - "json"
+    - "txt"
+
+llm:
+  provider: "gemini"
+  model: "gemini-1.5-pro"
+  temperature: 0.1
+  timeout_seconds: 30

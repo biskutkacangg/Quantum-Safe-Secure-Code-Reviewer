@@ -1,0 +1,20 @@
+# .pre-commit-config.yaml
+# DevSecOps Shift-Left Pre-Commit Policy Hook
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+
+  - repo: local
+    hooks:
+      - id: pqc-crypto-scanner
+        name: Post-Quantum Cryptography Reviewer Gate
+        entry: python -m pqc_agent.cli --target
+        language: system
+        types: [python, java]
+        args: ["--config", "pqc_config.yaml", "--fail-on", "CRITICAL"]
+        pass_filenames: true

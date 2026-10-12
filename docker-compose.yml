@@ -1,0 +1,35 @@
+# ============================================================
+# docker-compose.yml — PQC Reviewer Agent Stack
+# ============================================================
+services:
+  pqc-reviewer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pqc-secure-reviewer
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - LLM_PROVIDER=${LLM_PROVIDER:-gemini}
+      - LLM_MODEL=${LLM_MODEL:-gemini-1.5-pro}
+      - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.1}
+    volumes:
+      # Persistent volume for tamper-evident audit logs
+      - ./audit_outputs:/app/audit_outputs
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2048M
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

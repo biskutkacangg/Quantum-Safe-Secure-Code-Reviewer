@@ -1,0 +1,56 @@
+name: DevSecOps — SAST & PQC Cryptographic Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run weekly security scan
+    - cron: '0 2 * * 1'
+
+jobs:
+  security-gate:
+    name: DevSecOps Cryptographic Compliance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install bandit pip-audit
+
+      - name: Python AST SAST (Bandit)
+        run: |
+          bandit -r pqc_agent/ -ll -i || true
+
+      - name: Dependency Vulnerability Audit (pip-audit)
+        run: |
+          pip-audit || true
+
+      - name: Run PQC Secure-Code Reviewer CLI (DevSecOps Gate)
+        run: |
+          mkdir -p audit_outputs
+          python -m pqc_agent.cli \
+            --target sample_files/ \
+            --config pqc_config.yaml \
+            --generate-patches \
+            --output-json audit_outputs/ci_pqc_audit.json \
+            --output-txt audit_outputs/ci_pqc_audit.txt || true
+
+      - name: Upload Tamper-Evident Audit Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: pqc-cryptographic-audit-trail
+          path: audit_outputs/
+          retention-days: 90

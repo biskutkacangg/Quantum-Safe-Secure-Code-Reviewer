@@ -1,0 +1,25 @@
+# ============================================================
+# PQC Secure-Code Reviewer Agent — Dependency Manifest
+# ============================================================
+
+# --- Core Framework ---
+streamlit>=1.38.0
+langgraph>=0.2.0
+langchain-core>=0.3.0
+langchain-google-genai>=2.0.0
+
+# --- LLM Providers (choose one; Gemini is default) ---
+# langchain-anthropic>=0.2.0       # Uncomment for Claude 3.5 Sonnet
+# langchain-openai>=0.2.0          # Uncomment for GPT-4o
+
+# --- Persistence ---
+langgraph-checkpoint>=2.0.0
+
+# --- Post-Quantum Cryptography ---
+# liboqs-python>=0.11.0            # Uncomment if liboqs is installed on system
+# cryptography>=44.0               # Alternative PQC via pyca/cryptography
+
+# --- Utilities ---
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+pygments>=2.18.0

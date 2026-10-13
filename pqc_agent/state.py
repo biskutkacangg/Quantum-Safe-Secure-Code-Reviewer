@@ -55,6 +55,10 @@ class CryptoFinding(BaseModel):
         "",
         description="Explanation of quantum vulnerability (Shor / Grover impact)",
     )
+    cia_triad: list[str] = Field(
+        default_factory=list,
+        description="CIA Triad pillars impacted (Confidentiality, Integrity, Availability)",
+    )
 
 
 class PQCPatch(BaseModel):

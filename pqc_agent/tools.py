@@ -38,6 +38,7 @@ LEGACY_CRYPTO_DB: dict[str, dict[str, Any]] = {
     "RSA": {
         "category": "key_exchange",
         "severity": "CRITICAL",
+        "cia_impact": ["Confidentiality", "Integrity"],
         "quantum_threat": (
             "Shor's algorithm can factor RSA moduli in polynomial time on a "
             "cryptographically-relevant quantum computer (CRQC), completely "
@@ -49,6 +50,7 @@ LEGACY_CRYPTO_DB: dict[str, dict[str, Any]] = {
     "DH": {
         "category": "key_exchange",
         "severity": "CRITICAL",
+        "cia_impact": ["Confidentiality"],
         "quantum_threat": (
             "Diffie-Hellman key exchange relies on the discrete logarithm "
             "problem, which is solvable in polynomial time by Shor's algorithm."
@@ -59,6 +61,7 @@ LEGACY_CRYPTO_DB: dict[str, dict[str, Any]] = {
     "ECDH": {
         "category": "key_exchange",
         "severity": "CRITICAL",
+        "cia_impact": ["Confidentiality"],
         "quantum_threat": (
             "Elliptic Curve Diffie-Hellman is vulnerable to Shor's algorithm "
             "applied to the elliptic curve discrete logarithm problem (ECDLP)."
@@ -70,6 +73,7 @@ LEGACY_CRYPTO_DB: dict[str, dict[str, Any]] = {
     "ECDSA": {
         "category": "digital_signature",
         "severity": "CRITICAL",
+        "cia_impact": ["Integrity"],
         "quantum_threat": (
             "ECDSA relies on ECDLP; Shor's algorithm breaks it entirely. "
             "Signature forgery becomes trivial on a CRQC."
@@ -80,6 +84,7 @@ LEGACY_CRYPTO_DB: dict[str, dict[str, Any]] = {
     "DSA": {
         "category": "digital_signature",
         "severity": "CRITICAL",
+        "cia_impact": ["Integrity"],
         "quantum_threat": (
             "DSA depends on the discrete logarithm problem, broken by Shor's."
         ),
@@ -89,6 +94,7 @@ LEGACY_CRYPTO_DB: dict[str, dict[str, Any]] = {
     "EdDSA": {
         "category": "digital_signature",
         "severity": "HIGH",
+        "cia_impact": ["Integrity"],
         "quantum_threat": (
             "EdDSA (Ed25519/Ed448) uses elliptic curves and is vulnerable to "
             "quantum attack via Shor's algorithm, despite being modern."
@@ -99,6 +105,7 @@ LEGACY_CRYPTO_DB: dict[str, dict[str, Any]] = {
     "ECC": {
         "category": "digital_signature",
         "severity": "CRITICAL",
+        "cia_impact": ["Confidentiality", "Integrity"],
         "quantum_threat": (
             "Generic ECC operations (key generation, signing) are broken by "
             "Shor's algorithm applied to the ECDLP."
@@ -110,6 +117,7 @@ LEGACY_CRYPTO_DB: dict[str, dict[str, Any]] = {
     "AES-128": {
         "category": "symmetric_encryption",
         "severity": "MEDIUM",
+        "cia_impact": ["Confidentiality"],
         "quantum_threat": (
             "Grover's algorithm halves the effective key length. AES-128 "
             "offers only 64-bit quantum security — upgrade to AES-256."
@@ -120,6 +128,7 @@ LEGACY_CRYPTO_DB: dict[str, dict[str, Any]] = {
     "DES": {
         "category": "symmetric_encryption",
         "severity": "CRITICAL",
+        "cia_impact": ["Confidentiality"],
         "quantum_threat": (
             "DES is already broken classically (56-bit key). Grover's reduces "
             "brute force to ~2^28 operations."
@@ -130,6 +139,7 @@ LEGACY_CRYPTO_DB: dict[str, dict[str, Any]] = {
     "3DES": {
         "category": "symmetric_encryption",
         "severity": "HIGH",
+        "cia_impact": ["Confidentiality"],
         "quantum_threat": (
             "Triple-DES has a 112-bit effective key length. Grover's halves it "
             "to ~56 bits — inadequate for long-term security."
@@ -140,6 +150,7 @@ LEGACY_CRYPTO_DB: dict[str, dict[str, Any]] = {
     "MD5": {
         "category": "hashing",
         "severity": "CRITICAL",
+        "cia_impact": ["Integrity"],
         "quantum_threat": (
             "MD5 is already broken classically (collision attacks). Grover's "
             "further halves preimage resistance to 64 bits."
@@ -150,6 +161,7 @@ LEGACY_CRYPTO_DB: dict[str, dict[str, Any]] = {
     "SHA1": {
         "category": "hashing",
         "severity": "HIGH",
+        "cia_impact": ["Integrity"],
         "quantum_threat": (
             "SHA-1 has known collision attacks. Grover's halves preimage "
             "resistance to 80 bits — below recommended thresholds."
@@ -160,6 +172,7 @@ LEGACY_CRYPTO_DB: dict[str, dict[str, Any]] = {
     "Blowfish": {
         "category": "symmetric_encryption",
         "severity": "HIGH",
+        "cia_impact": ["Confidentiality"],
         "quantum_threat": (
             "Blowfish has a 64-bit block size (birthday attacks at 2^32 blocks) "
             "and is deprecated. Grover's further weakens it."
@@ -170,6 +183,7 @@ LEGACY_CRYPTO_DB: dict[str, dict[str, Any]] = {
     "RC4": {
         "category": "symmetric_encryption",
         "severity": "CRITICAL",
+        "cia_impact": ["Confidentiality"],
         "quantum_threat": (
             "RC4 is cryptographically broken classically. Must be replaced "
             "regardless of quantum considerations."
@@ -447,6 +461,7 @@ class _PythonCryptoVisitor(ast.NodeVisitor):
                             "algorithm_detected": algo,
                             "category": db_entry.get("category", "other"),
                             "severity": db_entry.get("severity", "HIGH"),
+                            "cia_triad": db_entry.get("cia_impact", ["Confidentiality"]),
                             "confidence": 0.95,
                             "rationale": (
                                 f"Import of '{module}' indicates usage of "
@@ -479,6 +494,7 @@ class _PythonCryptoVisitor(ast.NodeVisitor):
                                 "algorithm_detected": algo,
                                 "category": db_entry.get("category", "other"),
                                 "severity": db_entry.get("severity", "HIGH"),
+                                "cia_triad": db_entry.get("cia_impact", ["Confidentiality"]),
                                 "confidence": 0.85,
                                 "rationale": (
                                     f"Call to '{call_str}' matches {algo} "
@@ -545,6 +561,7 @@ def _scan_python(source_code: str, file_name: str) -> list[dict]:
                             "algorithm_detected": algo,
                             "category": db_entry.get("category", "other"),
                             "severity": db_entry.get("severity", "HIGH"),
+                            "cia_triad": db_entry.get("cia_impact", ["Confidentiality"]),
                             "confidence": 0.70,
                             "rationale": (
                                 f"Regex match for {algo} on line {lineno}. "
@@ -592,6 +609,7 @@ def _scan_java(source_code: str, file_name: str) -> list[dict]:
                             "algorithm_detected": algo,
                             "category": db_entry.get("category", "other"),
                             "severity": db_entry.get("severity", "HIGH"),
+                            "cia_triad": db_entry.get("cia_impact", ["Confidentiality"]),
                             "confidence": 0.75,
                             "rationale": (
                                 f"Regex match for {algo} in Java source "

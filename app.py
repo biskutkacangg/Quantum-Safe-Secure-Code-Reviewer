@@ -24,9 +24,23 @@ import streamlit as st
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.types import Command
 
-from pqc_agent.audit import generate_audit_json, generate_audit_txt
+try:
+    from pqc_agent.audit import compute_cia_summary, generate_audit_json, generate_audit_txt
+except ImportError:
+    from pqc_agent.audit import generate_audit_json, generate_audit_txt
+
+    def compute_cia_summary(findings: list[dict]) -> dict[str, int]:
+        """Fallback CIA summary calculator."""
+        summary = {"Confidentiality": 0, "Integrity": 0, "Availability": 0}
+        for f in findings:
+            for p in f.get("cia_triad", []):
+                if p in summary:
+                    summary[p] += 1
+        return summary
+
 from pqc_agent.graph import build_graph
 from pqc_agent.state import AgentState
+from pqc_agent.tools import LEGACY_CRYPTO_DB
 
 
 # ════════════════════════════════════════════════════════════════
@@ -244,6 +258,58 @@ st.markdown("""
         border: 1px solid rgba(59, 130, 246, 0.3);
     }
 
+    /* ── CIA Triad Badges & Cards ── */
+    .cia-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 10px;
+        border-radius: 6px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+    .cia-badge.confidentiality {
+        background: rgba(139, 92, 246, 0.18);
+        color: #c084fc;
+        border: 1px solid rgba(168, 85, 247, 0.35);
+    }
+    .cia-badge.integrity {
+        background: rgba(34, 211, 238, 0.18);
+        color: #38bdf8;
+        border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+    .cia-badge.availability {
+        background: rgba(245, 158, 11, 0.18);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .cia-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--shadow-card);
+    }
+    .cia-card:hover {
+        border-color: var(--border-glow);
+        transform: translateY(-2px);
+    }
+    .cia-card.pillar-c { border-top: 3px solid #c084fc; }
+    .cia-card.pillar-i { border-top: 3px solid #38bdf8; }
+    .cia-card.pillar-a { border-top: 3px solid #fbbf24; }
+    .cia-stat-num {
+        font-size: 2.2rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-top: 0.5rem;
+        margin-bottom: 0.4rem;
+    }
+
     /* ── Code Diff ── */
     .diff-container {
         display: grid;
@@ -430,7 +496,7 @@ def render_phase_tracker(current_phase: str):
 
 
 def render_metrics(findings: list[dict], patches: list[dict]):
-    """Render the dashboard metric cards."""
+    """Render the dashboard metric cards and CIA summary."""
     critical = sum(1 for f in findings if f.get("severity") == "CRITICAL")
     high = sum(1 for f in findings if f.get("severity") == "HIGH")
 
@@ -464,9 +530,25 @@ def render_metrics(findings: list[dict], patches: list[dict]):
         </div>
         """, unsafe_allow_html=True)
 
+    # CIA Impact Quick Bar
+    if findings:
+        cia_summary = compute_cia_summary(findings)
+        c_num = cia_summary.get("Confidentiality", 0)
+        i_num = cia_summary.get("Integrity", 0)
+        a_num = cia_summary.get("Availability", 0)
+        st.markdown(f"""
+        <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; background:rgba(26,31,46,0.7); border:1px solid var(--border-subtle); border-radius:10px; padding:10px 16px; margin-top:12px;">
+            <span style="font-size:0.78rem; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.05em;">🛡️ CIA Triad Impact:</span>
+            <span class="cia-badge confidentiality">Confidentiality: {c_num}</span>
+            <span class="cia-badge integrity">Integrity: {i_num}</span>
+            <span class="cia-badge availability">Availability: {a_num}</span>
+            <span style="font-size:0.75rem; color:var(--text-muted); margin-left:auto;">Target: NIST FIPS 203 / 204 Zero-Trust</span>
+        </div>
+        """, unsafe_allow_html=True)
+
 
 def render_finding_card(finding: dict, index: int):
-    """Render a single finding card."""
+    """Render a single finding card with CIA Triad badges."""
     sev = finding.get("severity", "INFO").lower()
     algo = finding.get("algorithm_detected", "Unknown")
     line = finding.get("line_number", "?")
@@ -474,6 +556,12 @@ def render_finding_card(finding: dict, index: int):
     confidence = finding.get("confidence", 0)
     rationale = finding.get("rationale", "")
     quantum = finding.get("quantum_threat_level", "")
+    cia_triad = finding.get("cia_triad", ["Confidentiality"])
+
+    cia_badges = " ".join([
+        f'<span class="cia-badge {p.lower()}">{p}</span>'
+        for p in cia_triad
+    ])
 
     st.markdown(f"""
     <div class="finding-card sev-{sev} animate-in">
@@ -481,7 +569,10 @@ def render_finding_card(finding: dict, index: int):
             <span style="font-weight:700; font-size:1rem; color:var(--text-primary);">
                 #{index+1} — {algo}
             </span>
-            <span class="severity-badge {sev}">{sev.upper()}</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+                {cia_badges}
+                <span class="severity-badge {sev}">{sev.upper()}</span>
+            </div>
         </div>
         <div style="font-size:0.82rem; color:var(--text-secondary); margin-bottom:6px;">
             📍 Line {line} &nbsp;|&nbsp; Confidence: {confidence:.0%}
@@ -497,6 +588,118 @@ def render_finding_card(finding: dict, index: int):
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+
+def render_cia_analysis(findings: list[dict], patches: list[dict]):
+    """Render the comprehensive CIA Triad Impact Analysis panel."""
+    c_findings = [f for f in findings if "Confidentiality" in f.get("cia_triad", [])]
+    i_findings = [f for f in findings if "Integrity" in f.get("cia_triad", [])]
+    a_findings = [f for f in findings if "Availability" in f.get("cia_triad", [])]
+
+    pqc_algos = [p.get("pqc_algorithm", "") for p in patches]
+    has_pqc_bloat = any("ML-KEM" in a or "ML-DSA" in a or "Dilithium" in a or "Kyber" in a for a in pqc_algos)
+
+    st.markdown("""
+    <div style="background:linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.05)); border:1px solid var(--border-subtle); border-radius:12px; padding:1.25rem 1.5rem; margin-bottom:1.5rem;">
+        <h4 style="margin:0 0 8px 0; color:var(--accent-indigo);">🛡️ The CIA Triad in Post-Quantum Cryptography</h4>
+        <p style="font-size:0.86rem; color:var(--text-secondary); margin:0; line-height:1.6;">
+            Evaluating post-quantum cryptographic resilience across all three foundational pillars of cybersecurity:
+            <strong>Confidentiality</strong> (countering Harvest Now, Decrypt Later attacks), 
+            <strong>Integrity</strong> (preventing quantum signature forgery and hash collision attacks), and 
+            <strong>Availability</strong> (mitigating PQC network bloat, MTU packet fragmentation, and handshake latency spikes).
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col_c, col_i, col_a = st.columns(3)
+
+    with col_c:
+        st.markdown(f"""
+        <div class="cia-card pillar-c animate-in">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="cia-badge confidentiality">Confidentiality</span>
+                <span style="font-size:0.8rem; color:var(--text-muted);">Shor's & Grover's</span>
+            </div>
+            <div class="cia-stat-num" style="color:#c084fc;">{len(c_findings)}</div>
+            <div style="font-size:0.85rem; font-weight:700; color:var(--text-primary); margin-bottom:6px;">
+                Harvest Now, Decrypt Later (HNDL)
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-secondary); line-height:1.5; margin-bottom:12px;">
+                Adversaries passively record encrypted ciphertext today to decrypt once cryptographically relevant quantum computers (CRQC) emerge.
+            </div>
+            <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:10px; font-size:0.78rem;">
+                <strong style="color:var(--accent-emerald);">🎯 NIST Migration:</strong><br/>
+                FIPS 203 ML-KEM-768/1024, Hybrid X25519_ML-KEM-768, AES-256
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col_i:
+        st.markdown(f"""
+        <div class="cia-card pillar-i animate-in">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="cia-badge integrity">Integrity</span>
+                <span style="font-size:0.8rem; color:var(--text-muted);">Discrete Log & Hashes</span>
+            </div>
+            <div class="cia-stat-num" style="color:#38bdf8;">{len(i_findings)}</div>
+            <div style="font-size:0.85rem; font-weight:700; color:var(--text-primary); margin-bottom:6px;">
+                Digital Signature Forgery
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-secondary); line-height:1.5; margin-bottom:12px;">
+                Shor's algorithm breaks discrete logarithms in ECDSA, Ed25519, and RSA signing, allowing identity theft, authentication bypass, and malicious firmware injection.
+            </div>
+            <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:10px; font-size:0.78rem;">
+                <strong style="color:var(--accent-emerald);">🎯 NIST Migration:</strong><br/>
+                FIPS 204 ML-DSA-65/87, FIPS 205 SLH-DSA, SHA-384 / SHA-512
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col_a:
+        avail_count = len(a_findings) if a_findings else (len(patches) if has_pqc_bloat else 0)
+        st.markdown(f"""
+        <div class="cia-card pillar-a animate-in">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="cia-badge availability">Availability</span>
+                <span style="font-size:0.8rem; color:var(--text-muted);">Packet Bloat & MTU</span>
+            </div>
+            <div class="cia-stat-num" style="color:#fbbf24;">{avail_count}</div>
+            <div style="font-size:0.85rem; font-weight:700; color:var(--text-primary); margin-bottom:6px;">
+                PQC MTU & Latency Overhead
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-secondary); line-height:1.5; margin-bottom:12px;">
+                ML-KEM keys (~1.2 KB) and ML-DSA signatures (~3.3 KB) exceed standard Ethernet 1500-byte MTUs, causing TCP fragmentation and handshake timeouts.
+            </div>
+            <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:10px; font-size:0.78rem;">
+                <strong style="color:var(--accent-emerald);">🎯 Resilience Plan:</strong><br/>
+                DigiCert TLS 1.3 PQC hybrid negotiation, TCP Jumbo Frames, crypto agility
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("#### 📊 CIA Impact Matrix")
+    if findings:
+        matrix_rows = []
+        for f in findings:
+            pillars = f.get("cia_triad", ["Confidentiality"])
+            algo_key = f.get("algorithm_detected", "")
+            db_info = LEGACY_CRYPTO_DB.get(algo_key, {})
+            c_flag = "🟣 Vulnerable (HNDL)" if "Confidentiality" in pillars else "—"
+            i_flag = "🔵 Vulnerable (Forgery)" if "Integrity" in pillars else "—"
+            a_flag = "🟡 Key Bloat / MTU" if "Availability" in pillars or db_info.get("category") in ("kem", "signature", "asymmetric") else "—"
+            matrix_rows.append({
+                "Algorithm": algo_key,
+                "Line": f.get("line_number", "?"),
+                "Severity": f.get("severity", "HIGH"),
+                "Confidentiality": c_flag,
+                "Integrity": i_flag,
+                "Availability Risk": a_flag,
+                "NIST Recommendation": db_info.get("recommended_pqc", "NIST PQC Standard"),
+                "FIPS Standard": db_info.get("fips_standard", "FIPS 203/204")
+            })
+        st.dataframe(matrix_rows, use_container_width=True)
+    else:
+        st.info("No findings detected to populate the CIA matrix.")
 
 
 def render_diff(patch: dict, index: int):
@@ -815,8 +1018,9 @@ elif st.session_state["phase"] == "review":
     st.markdown("")
 
     # ── Tabs ──
-    tab_findings, tab_cot, tab_patches, tab_limitations, tab_audit = st.tabs([
+    tab_findings, tab_cia, tab_cot, tab_patches, tab_limitations, tab_audit = st.tabs([
         "🔍 Findings",
+        "🛡️ CIA Triad Analysis",
         "🧠 Chain of Thought",
         "🔧 PQC Patches (Diff View)",
         "⚠️ Limitations",
@@ -831,6 +1035,9 @@ elif st.session_state["phase"] == "review":
             st.warning(st.session_state["risk_assessment"], icon="⚡")
         for i, finding in enumerate(findings):
             render_finding_card(finding, i)
+
+    with tab_cia:
+        render_cia_analysis(findings, patches)
 
     with tab_cot:
         st.markdown("### 🧠 Agent Chain of Thought — Explainable AI")
@@ -947,13 +1154,14 @@ elif st.session_state["phase"] in ("approved", "rejected", "complete"):
         "decision": decision,
         "findings_count": len(findings),
         "patches_count": len(patches),
+        "findings": findings,
     }
 
     col_json, col_txt = st.columns(2)
     with col_json:
         json_content = generate_audit_json(audit_trail, metadata)
         st.download_button(
-            "📄 Download JSON Audit",
+            "📄 Download JSON Audit (with CIA Summary)",
             data=json_content,
             file_name=f"pqc_audit_{st.session_state['thread_id'][:8]}.json",
             mime="application/json",
@@ -963,21 +1171,35 @@ elif st.session_state["phase"] in ("approved", "rejected", "complete"):
     with col_txt:
         txt_content = generate_audit_txt(audit_trail, metadata)
         st.download_button(
-            "📝 Download TXT Audit",
+            "📝 Download TXT Audit (with CIA Summary)",
             data=txt_content,
             file_name=f"pqc_audit_{st.session_state['thread_id'][:8]}.txt",
             mime="text/plain",
             use_container_width=True,
         )
 
-    # Show full audit trail
-    st.markdown("### 📋 Complete Audit Trail")
-    render_audit_timeline(audit_trail)
+    st.markdown("---")
+    tab_c_findings, tab_c_cia, tab_c_patches, tab_c_audit = st.tabs([
+        "🔍 Findings",
+        "🛡️ CIA Triad Analysis",
+        "🔧 Patches & Diffs",
+        "📋 Complete Audit Trail",
+    ])
 
-    # Show patches if approved
-    if decision == "approved":
-        st.markdown("---")
-        st.markdown("### 🔧 Approved Patches")
+    with tab_c_findings:
+        st.markdown("### 🔍 Verified Findings")
+        for i, finding in enumerate(findings):
+            render_finding_card(finding, i)
+
+    with tab_c_cia:
+        render_cia_analysis(findings, patches)
+
+    with tab_c_patches:
+        st.markdown("### 🔧 Proposed / Approved Patches")
         for i, patch in enumerate(patches):
             render_diff(patch, i)
+
+    with tab_c_audit:
+        st.markdown("### 📋 Complete Audit Trail")
+        render_audit_timeline(audit_trail)
 

@@ -36,14 +36,19 @@ standardised post-quantum replacements.
    - SLH-DSA (FIPS 205) for stateless hash-based signatures (mention as alternative)
    - AES-256 for symmetric encryption (quantum-safe under Grover's)
    - SHA-3 / SHA-512 for hashing (quantum-safe under Grover's)
+6. **CIA Triad Evaluation**: Explicitly categorise every risk under the CIA Triad:
+   - **Confidentiality (C)**: "Harvest Now, Decrypt Later" (HNDL) exposure via vulnerable key exchanges (RSA, DH, ECDH) or weak ciphers.
+   - **Integrity (I)**: Quantum forgery of digital signatures (RSA, ECDSA, DSA) and tampering via broken hashes (MD5, SHA-1).
+   - **Availability (A)**: Post-quantum performance impacts, including packet bloat (ML-KEM/ML-DSA payload sizes exceeding MTU 1500 bytes), handshake latency, and buffer memory overhead.
 
 ## Response Format
 Structure your analysis as:
 1. **Executive Summary** — One-paragraph risk overview
-2. **Detailed Findings** — Per-finding analysis with severity and confidence
-3. **Quantum Threat Assessment** — Shor's / Grover's impact per algorithm
-4. **Recommended Actions** — Specific migration steps
-5. **Caveats & Limitations** — What the scanner might have missed
+2. **CIA Triad Impact Breakdown** — Mapping vulnerabilities to Confidentiality, Integrity, and Availability
+3. **Detailed Findings** — Per-finding analysis with severity, confidence, and CIA pillars
+4. **Quantum Threat Assessment** — Shor's / Grover's impact per algorithm
+5. **Recommended Actions** — Specific migration steps and PQC availability considerations
+6. **Caveats & Limitations** — What the scanner might have missed
 """
 
 INVESTIGATION_PROMPT = """\
@@ -58,8 +63,10 @@ investigation of the findings.
      but not actually using RSA)?
    - What is the actual quantum threat for this specific usage?
 
-2. **Assess composite risk**: Consider the overall cryptographic posture.
-   Multiple weak algorithms compound the risk.
+2. **Assess composite risk and CIA Triad Impact**: Consider the overall cryptographic posture:
+   - **Confidentiality**: Are session keys or data-at-rest vulnerable to HNDL?
+   - **Integrity**: Can signatures or authentication tokens be forged by Shor's algorithm?
+   - **Availability**: Will migrating to PQC introduce network packet fragmentation (MTU > 1500 bytes) or latency?
 
 3. **Explain your reasoning** using a detailed Chain of Thought. Write out
    each step of your analysis so the human reviewer can follow your logic.
@@ -86,9 +93,10 @@ Generate a concise but comprehensive summary of all proposed PQC patches.
 For each patch:
 1. Explain what the original code does and why it's vulnerable
 2. Explain what the replacement code does and which FIPS standard it implements
-3. Note any deployment considerations (library dependencies, key size changes,
-   performance implications, backward compatibility)
-4. Flag any patches that require additional manual review
+3. Explain how the patch restores the CIA Triad (Confidentiality against HNDL, Integrity against signature forgery, Availability considerations)
+4. Note any deployment considerations (library dependencies, key size changes,
+   MTU packet bloat, performance implications, backward compatibility)
+5. Flag any patches that require additional manual review
 
 Findings: {findings_json}
 Patches: {patches_json}

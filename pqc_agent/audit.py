@@ -17,6 +17,17 @@ from pathlib import Path
 from typing import Any
 
 
+def compute_cia_summary(findings: list[dict]) -> dict[str, int]:
+    """Calculate the distribution of impacted CIA Triad pillars across findings."""
+    summary = {"Confidentiality": 0, "Integrity": 0, "Availability": 0}
+    for f in findings:
+        pillars = f.get("cia_triad", [])
+        for p in pillars:
+            if p in summary:
+                summary[p] += 1
+    return summary
+
+
 def _compute_chain_hash(entries: list[dict]) -> str:
     """
     Compute a SHA-256 chain hash over all entries to detect tampering.
@@ -35,7 +46,7 @@ def generate_audit_json(
     metadata: dict[str, Any] | None = None,
 ) -> str:
     """
-    Generate a JSON audit report with integrity hash.
+    Generate a JSON audit report with integrity hash and CIA impact analysis.
 
     Args:
         audit_trail: List of AuditEntry dicts from the agent state.
@@ -45,6 +56,10 @@ def generate_audit_json(
         Pretty-printed JSON string of the complete audit report.
     """
     chain_hash = _compute_chain_hash(audit_trail)
+    meta = dict(metadata or {})
+    findings = meta.get("findings", [])
+    if findings and "cia_summary" not in meta:
+        meta["cia_summary"] = compute_cia_summary(findings)
 
     report = {
         "audit_report": {
@@ -53,7 +68,8 @@ def generate_audit_json(
             "agent": "PQC Secure-Code Reviewer Agent",
             "integrity_hash_sha256": chain_hash,
             "entry_count": len(audit_trail),
-            "metadata": metadata or {},
+            "cia_triad_summary": meta.get("cia_summary", {}),
+            "metadata": meta,
         },
         "entries": audit_trail,
     }
@@ -66,7 +82,7 @@ def generate_audit_txt(
     metadata: dict[str, Any] | None = None,
 ) -> str:
     """
-    Generate a human-readable TXT audit report.
+    Generate a human-readable TXT audit report including CIA Triad analysis.
 
     Args:
         audit_trail: List of AuditEntry dicts from the agent state.
@@ -88,6 +104,14 @@ def generate_audit_txt(
     if metadata:
         lines.append(f"  File      : {metadata.get('file_name', 'N/A')}")
         lines.append(f"  Language  : {metadata.get('language', 'N/A')}")
+        cia = metadata.get("cia_summary")
+        if not cia and "findings" in metadata:
+            cia = compute_cia_summary(metadata["findings"])
+        if cia:
+            lines.append("  CIA Triad Impact Breakdown:")
+            lines.append(f"    - Confidentiality (HNDL Threat) : {cia.get('Confidentiality', 0)}")
+            lines.append(f"    - Integrity (Quantum Forgery)   : {cia.get('Integrity', 0)}")
+            lines.append(f"    - Availability (PQC Overhead)   : {cia.get('Availability', 0)}")
 
     lines.append("=" * 72)
     lines.append("")

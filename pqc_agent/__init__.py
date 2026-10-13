@@ -19,6 +19,7 @@ __author__ = "PQC Migration Research Team"
 from pqc_agent.state import AgentState, AuditEntry, CryptoFinding, PQCPatch
 from pqc_agent.tools import code_scanner_tool, pqc_patch_generator_tool, LEGACY_CRYPTO_DB
 from pqc_agent.graph import build_graph
+from pqc_agent.audit import compute_cia_summary, generate_audit_json, generate_audit_txt
 
 __all__ = [
     "__version__",
@@ -30,4 +31,7 @@ __all__ = [
     "pqc_patch_generator_tool",
     "LEGACY_CRYPTO_DB",
     "build_graph",
+    "compute_cia_summary",
+    "generate_audit_json",
+    "generate_audit_txt",
 ]

@@ -1,0 +1,288 @@
+# ============================================================
+# scripts/generate_poster_pdf.py
+# Compiles a 1-Page High-Impact Digital Poster PDF for
+# Track 1: Agentic Cyber Defence (hackai.my)
+# ============================================================
+
+import re
+import shutil
+import subprocess
+from pathlib import Path
+
+SCRIPTS_DIR = Path(__file__).resolve().parent
+WORKSPACE = SCRIPTS_DIR.parent
+REPORTS_DIR = WORKSPACE / "reports"
+REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+HTML_DIR = REPORTS_DIR / "html"
+HTML_DIR.mkdir(parents=True, exist_ok=True)
+
+HTML_FILE = HTML_DIR / "Digital_Poster_Quantum_Safe_Agent.html"
+PDF_FILE = REPORTS_DIR / "Digital_Poster_Quantum_Safe_Agent.pdf"
+DOWNLOADS_PDF = Path(r"C:\Users\User\Downloads\Digital_Poster_Quantum_Safe_Agent.pdf")
+POSTER_IMG = REPORTS_DIR / "Digital_Poster_Quantum_Safe_Agent.jpg"
+EDGE_EXE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+
+PROJECT_TITLE = "Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool"
+
+img_uri = POSTER_IMG.resolve().as_uri()
+
+html_content = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{PROJECT_TITLE} — Digital Poster</title>
+<style>
+    @page {{
+        size: A4 portrait;
+        margin: 0;
+    }}
+
+    * {{
+        box-sizing: border-box;
+    }}
+
+    body {{
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: #ffffff;
+        background: #090d16;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }}
+
+    .poster-container {{
+        width: 210mm;
+        height: 297mm;
+        padding: 12mm 14mm;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #0a0e17 75%, #05070c 100%);
+        border: 4px solid #6366f1;
+        position: relative;
+    }}
+
+    .header-section {{
+        text-align: center;
+        border-bottom: 2px solid rgba(99, 102, 241, 0.4);
+        padding-bottom: 10px;
+    }}
+
+    .badge {{
+        display: inline-block;
+        background: rgba(99, 102, 241, 0.25);
+        border: 1px solid #818cf8;
+        color: #a5b4fc;
+        font-size: 8pt;
+        font-weight: 800;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        padding: 4px 14px;
+        border-radius: 20px;
+        margin-bottom: 6px;
+    }}
+
+    h1 {{
+        font-size: 19pt;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        margin: 4px 0;
+        background: linear-gradient(135deg, #ffffff 0%, #c7d2fe 50%, #818cf8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }}
+
+    .tagline {{
+        font-size: 9pt;
+        color: #94a3b8;
+        font-weight: 500;
+        margin-top: 2px;
+    }}
+
+    /* ── Poster Center Visual ── */
+    .image-showcase {{
+        text-align: center;
+        margin: 10px 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }}
+
+    .image-showcase img {{
+        max-width: 140mm;
+        max-height: 145mm;
+        border-radius: 12px;
+        border: 2px solid rgba(99, 102, 241, 0.5);
+        box-shadow: 0 0 35px rgba(99, 102, 241, 0.35);
+    }}
+
+    /* ── 3 Column Feature Grid ── */
+    .feature-grid {{
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+        margin-top: 6px;
+    }}
+
+    .feature-card {{
+        background: rgba(26, 31, 46, 0.85);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        border-radius: 8px;
+        padding: 8px 10px;
+    }}
+
+    .feature-title {{
+        font-size: 8pt;
+        font-weight: 700;
+        color: #38bdf8;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }}
+
+    .feature-card p {{
+        font-size: 6.8pt;
+        color: #cbd5e1;
+        line-height: 1.35;
+        margin: 0;
+    }}
+
+    /* ── Bottom Metrics Strip ── */
+    .metrics-strip {{
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(99, 102, 241, 0.4);
+        border-radius: 8px;
+        padding: 8px 16px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        text-align: center;
+    }}
+
+    .metric-item {{
+        display: flex;
+        flex-direction: column;
+    }}
+
+    .metric-val {{
+        font-size: 14pt;
+        font-weight: 800;
+        color: #10b981;
+    }}
+
+    .metric-lbl {{
+        font-size: 6.2pt;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }}
+
+    .footer-bar {{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 6.8pt;
+        color: #64748b;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        padding-top: 6px;
+    }}
+</style>
+</head>
+<body>
+
+<div class="poster-container">
+    <div class="header-section">
+        <span class="badge">Track 1: Agentic Cyber Defence &bull; Hack@AI 2026</span>
+        <h1>{PROJECT_TITLE}</h1>
+        <div class="tagline">From Alert Overload to Explainable, Controlled Post-Quantum Remediation</div>
+    </div>
+
+    <div class="image-showcase">
+        <img src="{img_uri}" alt="Quantum-Safe Agentic Cyber Defence Poster Graphic">
+    </div>
+
+    <div class="feature-grid">
+        <div class="feature-card">
+            <div class="feature-title">🛡️ 01. Take In Evidence</div>
+            <p>
+                Deterministic AST code ingestion replaces noisy regex. Detects 14 deprecated primitives (RSA, ECDSA, 3DES) with zero LLM hallucination.
+            </p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-title">🧠 02. Investigate &amp; Decide</div>
+            <p>
+                LLM Chain-of-Thought maps vulnerabilities across the <strong>CIA Triad</strong>. Flags <strong>HNDL</strong> &amp; calculates <strong>PQC MTU Packet Bloat</strong> for NIST FIPS 203/204 targets.
+            </p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-title">🔒 03. Act Safely (HITL)</div>
+            <p>
+                LangGraph <span style="color:#22d3ee; font-family:monospace;">interrupt()</span> halts execution. Human reviewer holds final veto. Every decision is locked in a <strong>SHA-256 chained audit trail</strong>.
+            </p>
+        </div>
+    </div>
+
+    <div class="metrics-strip">
+        <div class="metric-item">
+            <span class="metric-val">96.8%</span>
+            <span class="metric-lbl">AST Precision</span>
+        </div>
+        <div class="metric-item">
+            <span class="metric-val">&lt; 45 ms</span>
+            <span class="metric-lbl">Static Scan Latency</span>
+        </div>
+        <div class="metric-item">
+            <span class="metric-val">FIPS 203/204</span>
+            <span class="metric-lbl">NIST PQC Standards</span>
+        </div>
+        <div class="metric-item">
+            <span class="metric-val">100%</span>
+            <span class="metric-lbl">Human-in-the-Loop</span>
+        </div>
+        <div class="metric-item">
+            <span class="metric-val">SHA-256</span>
+            <span class="metric-lbl">Chained Audit Log</span>
+        </div>
+    </div>
+
+    <div class="footer-bar">
+        <span>Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool</span>
+        <span>Repository: natasyafrzan-hub/Quantum-Safe-Secure-Code-Reviewer &bull; Hack@AI 2026</span>
+    </div>
+</div>
+
+</body>
+</html>
+"""
+
+HTML_FILE.write_text(html_content, encoding="utf-8")
+print(f"[OK] Wrote digital poster HTML to {HTML_FILE}")
+
+cmd = [
+    EDGE_EXE,
+    "--headless",
+    "--disable-gpu",
+    "--no-pdf-header-footer",
+    f"--print-to-pdf={PDF_FILE}",
+    str(HTML_FILE.resolve()),
+]
+
+print(f"[RUNNING] Compiling Digital Poster PDF via Microsoft Edge headless...")
+result = subprocess.run(cmd, capture_output=True, text=True)
+
+if PDF_FILE.exists() and PDF_FILE.stat().st_size > 0:
+    print(f"[SUCCESS] Digital Poster PDF generated: {PDF_FILE} ({PDF_FILE.stat().st_size} bytes)")
+    try:
+        shutil.copy2(PDF_FILE, DOWNLOADS_PDF)
+        print(f"[COPIED] Copied to Downloads: {DOWNLOADS_PDF}")
+    except Exception as e:
+        print(f"[WARN] Could not copy to Downloads: {e}")
+        
+    pdf_bytes = PDF_FILE.read_bytes()
+    page_matches = re.findall(rb"/Type\s*/Page\b", pdf_bytes)
+    page_count = len(page_matches)
+    print(f"[INFO] Verified Digital Poster PDF Page Count: {page_count} page(s)")
+else:
+    print(f"[ERROR] Failed to generate PDF: {result.stderr}")

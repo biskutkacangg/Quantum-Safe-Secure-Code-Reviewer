@@ -3,12 +3,15 @@ test_graph_e2e.py — End-to-end verification of LangGraph State Machine with HI
 """
 import sys
 from pathlib import Path
-from langgraph.types import Command
 
 # Ensure UTF-8 output
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
+ROOT_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT_DIR))
+
+from langgraph.types import Command
 from pqc_agent.graph import build_graph
 from langgraph.checkpoint.memory import MemorySaver
 
@@ -16,7 +19,7 @@ print("=" * 60)
 print("Testing LangGraph End-to-End Workflow with HITL Interrupt...")
 print("=" * 60)
 
-with open("sample_files/vulnerable_python.py", "r", encoding="utf-8") as f:
+with open(ROOT_DIR / "sample_files" / "vulnerable_python.py", "r", encoding="utf-8") as f:
     source_code = f.read()
 
 checkpointer = MemorySaver()

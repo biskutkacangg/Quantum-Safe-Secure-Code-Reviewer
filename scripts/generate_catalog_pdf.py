@@ -1,0 +1,608 @@
+# ============================================================
+# generate_catalog_pdf.py
+# Generates a publication-quality PDF catalog of all cryptographic
+# vulnerabilities and their NIST-standardised PQC replacements.
+# ============================================================
+
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+SCRIPTS_DIR = Path(__file__).resolve().parent
+WORKSPACE = SCRIPTS_DIR.parent
+REPORTS_DIR = WORKSPACE / "reports"
+REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+HTML_DIR = REPORTS_DIR / "html"
+HTML_DIR.mkdir(parents=True, exist_ok=True)
+HTML_FILE = HTML_DIR / "PQC_Vulnerabilities_and_Replacements_Catalog.html"
+PDF_FILE = REPORTS_DIR / "PQC_Vulnerabilities_and_Replacements_Catalog.pdf"
+DOWNLOADS_PDF = Path(r"C:\Users\User\Downloads\PQC_Vulnerabilities_and_Replacements_Catalog.pdf")
+EDGE_EXE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+
+html_content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PQC Cryptographic Vulnerabilities &amp; Replacements Catalog</title>
+<style>
+    @page {
+        size: A4 portrait;
+        margin: 8mm 9mm 8mm 9mm;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: #0f172a;
+        background: #ffffff;
+        line-height: 1.25;
+        font-size: 7pt;
+        margin: 0;
+        padding: 0;
+    }
+
+    .page-container {
+        page-break-after: always;
+        height: 280mm;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .page-container:last-child {
+        page-break-after: avoid;
+    }
+
+    /* ── Header ── */
+    .header-bar {
+        border-bottom: 2px solid #4338ca;
+        padding-bottom: 4px;
+        margin-bottom: 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+    .title-block h1 {
+        font-size: 13pt;
+        color: #1e1b4b;
+        margin: 0 0 1px 0;
+        font-weight: 800;
+        letter-spacing: -0.2px;
+    }
+
+    .title-block .subtitle {
+        font-size: 8pt;
+        color: #4338ca;
+        font-weight: 600;
+    }
+
+    .meta-box {
+        text-align: right;
+        font-size: 6.5pt;
+        color: #64748b;
+        line-height: 1.3;
+    }
+
+    /* ── Pills & Badges ── */
+    .tag-row {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 6px;
+    }
+
+    .tag {
+        font-size: 6pt;
+        font-weight: 700;
+        padding: 1.5px 6px;
+        border-radius: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .tag-indigo { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+    .tag-green  { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .tag-amber  { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .tag-purple { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+
+    /* ── Tables ── */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 6.8pt;
+        margin-bottom: 6px;
+    }
+
+    th, td {
+        padding: 3px 4px;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+        vertical-align: middle;
+    }
+
+    th {
+        background: #1e1b4b;
+        color: #ffffff;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 6.2pt;
+        letter-spacing: 0.4px;
+    }
+
+    tr:nth-child(even) td {
+        background: #f8fafc;
+    }
+
+    /* ── Severity Badges ── */
+    .sev {
+        display: inline-block;
+        font-size: 5.6pt;
+        font-weight: 800;
+        padding: 1px 4.5px;
+        border-radius: 2px;
+        text-transform: uppercase;
+    }
+
+    .sev-critical { background: #fee2e2; color: #991b1b; }
+    .sev-high     { background: #fed7aa; color: #9a3412; }
+    .sev-medium   { background: #fef08a; color: #854d0e; }
+    .sev-low      { background: #e0f2fe; color: #075985; }
+
+    /* ── CIA Badges ── */
+    .cia {
+        display: inline-block;
+        font-size: 5.6pt;
+        font-weight: 700;
+        padding: 1px 4px;
+        border-radius: 2px;
+        margin-right: 2px;
+    }
+    .cia-c { background: #f3e8ff; color: #7e22ce; }
+    .cia-i { background: #ccfbf1; color: #0f766e; }
+    .cia-a { background: #fef3c7; color: #b45309; }
+
+    /* ── Cards & Grids ── */
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        margin-bottom: 6px;
+    }
+
+    .card {
+        border: 1px solid #cbd5e1;
+        border-radius: 4px;
+        padding: 5px 7px;
+        background: #f8fafc;
+    }
+
+    .card-title {
+        font-size: 7.8pt;
+        font-weight: 700;
+        color: #1e1b4b;
+        margin-bottom: 3px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 2px;
+    }
+
+    pre {
+        margin: 2px 0 0 0;
+        background: #0f172a;
+        color: #e2e8f0;
+        padding: 4px 6px;
+        border-radius: 3px;
+        font-family: "JetBrains Mono", Consolas, monospace;
+        font-size: 5.8pt;
+        line-height: 1.25;
+        overflow-x: auto;
+    }
+
+    .code-comment { color: #94a3b8; }
+    .code-kw { color: #f43f5e; font-weight: bold; }
+    .code-fn { color: #38bdf8; }
+    .code-str { color: #a3e635; }
+
+    /* ── Footer ── */
+    .footer-bar {
+        border-top: 1px solid #cbd5e1;
+        padding-top: 3px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 6.2pt;
+        color: #64748b;
+    }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- ░░░ PAGE 1: COMPLETE VULNERABILITY & REPLACEMENT CATALOG ░░░░░ -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="page-container">
+    <div>
+        <div class="header-bar">
+            <div class="title-block">
+                <h1>Cryptographic Vulnerabilities &amp; PQC Replacements Catalog</h1>
+                <div class="subtitle">Complete Inventory of Deprecated Algorithms &bull; NIST FIPS 203 / 204 Migration Targets</div>
+            </div>
+            <div class="meta-box">
+                <strong>Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool</strong><br>
+                Track 1: Agentic Cyber Defence &bull; Page 1 of 2
+            </div>
+        </div>
+
+        <div class="tag-row">
+            <span class="tag tag-indigo">14 Legacy Algorithms Cataloged</span>
+            <span class="tag tag-green">NIST FIPS Standardized</span>
+            <span class="tag tag-amber">Shor's &amp; Grover's Mitigated</span>
+            <span class="tag tag-purple">Drop-in Code Ready</span>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:13%;">Vulnerable Primitive</th>
+                    <th style="width:13%;">Category</th>
+                    <th style="width:9%;">Severity</th>
+                    <th style="width:13%;">CIA Impact</th>
+                    <th style="width:26%;">Quantum Threat Mechanism</th>
+                    <th style="width:17%;">PQC Replacement</th>
+                    <th style="width:9%;">Standard</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 1. RSA -->
+                <tr>
+                    <td><strong>RSA</strong><br><span style="color:#64748b; font-size:6pt;">1024 / 2048 / 4096</span></td>
+                    <td>Key Exchange / Signature</td>
+                    <td><span class="sev sev-critical">CRITICAL</span></td>
+                    <td><span class="cia cia-c">C</span><span class="cia cia-i">I</span></td>
+                    <td>Shor's algorithm factors moduli in &Omicron;((log N)&sup3;) polynomial time on a CRQC.</td>
+                    <td><strong>ML-KEM-768</strong> (KEM)<br><strong>ML-DSA-65</strong> (Sig)</td>
+                    <td>FIPS 203<br>FIPS 204</td>
+                </tr>
+                <!-- 2. DH -->
+                <tr>
+                    <td><strong>DH</strong><br><span style="color:#64748b; font-size:6pt;">Diffie-Hellman</span></td>
+                    <td>Key Exchange</td>
+                    <td><span class="sev sev-critical">CRITICAL</span></td>
+                    <td><span class="cia cia-c">C</span></td>
+                    <td>Discrete Logarithm Problem solved in polynomial time by Shor's algorithm.</td>
+                    <td><strong>ML-KEM-768</strong><br><span style="color:#64748b; font-size:6pt;">or X25519_ML-KEM-768</span></td>
+                    <td>FIPS 203</td>
+                </tr>
+                <!-- 3. ECDH -->
+                <tr>
+                    <td><strong>ECDH</strong><br><span style="color:#64748b; font-size:6pt;">P-256 / P-384 / P-521</span></td>
+                    <td>Key Exchange</td>
+                    <td><span class="sev sev-critical">CRITICAL</span></td>
+                    <td><span class="cia cia-c">C</span></td>
+                    <td>Elliptic Curve Discrete Logarithm (ECDLP) broken entirely by Shor's algorithm.</td>
+                    <td><strong>ML-KEM-768 / 1024</strong></td>
+                    <td>FIPS 203</td>
+                </tr>
+                <!-- 4. ECDSA -->
+                <tr>
+                    <td><strong>ECDSA</strong><br><span style="color:#64748b; font-size:6pt;">secp256r1 / secp256k1</span></td>
+                    <td>Digital Signature</td>
+                    <td><span class="sev sev-critical">CRITICAL</span></td>
+                    <td><span class="cia cia-i">I</span></td>
+                    <td>Private key extraction via Shor's ECDLP solver allows signature forgery.</td>
+                    <td><strong>ML-DSA-65 / 87</strong></td>
+                    <td>FIPS 204</td>
+                </tr>
+                <!-- 5. DSA -->
+                <tr>
+                    <td><strong>DSA</strong><br><span style="color:#64748b; font-size:6pt;">Digital Signature Algo</span></td>
+                    <td>Digital Signature</td>
+                    <td><span class="sev sev-critical">CRITICAL</span></td>
+                    <td><span class="cia cia-i">I</span></td>
+                    <td>Standard finite field discrete logarithm problem broken by Shor's algorithm.</td>
+                    <td><strong>ML-DSA-65</strong></td>
+                    <td>FIPS 204</td>
+                </tr>
+                <!-- 6. EdDSA -->
+                <tr>
+                    <td><strong>EdDSA</strong><br><span style="color:#64748b; font-size:6pt;">Ed25519 / Ed448</span></td>
+                    <td>Digital Signature</td>
+                    <td><span class="sev sev-high">HIGH</span></td>
+                    <td><span class="cia cia-i">I</span></td>
+                    <td>Twisted Edwards curves are vulnerable to Shor's algorithm despite modern design.</td>
+                    <td><strong>ML-DSA-65</strong><br><span style="color:#64748b; font-size:6pt;">Alt: SLH-DSA-128</span></td>
+                    <td>FIPS 204<br>FIPS 205</td>
+                </tr>
+                <!-- 7. ECC -->
+                <tr>
+                    <td><strong>ECC (Generic)</strong><br><span style="color:#64748b; font-size:6pt;">General Elliptic Curve</span></td>
+                    <td>Asymmetric Ops</td>
+                    <td><span class="sev sev-critical">CRITICAL</span></td>
+                    <td><span class="cia cia-c">C</span><span class="cia cia-i">I</span></td>
+                    <td>All standard elliptic curve operations fail against Shor's discrete logarithm attack.</td>
+                    <td><strong>ML-KEM-768 / ML-DSA-65</strong></td>
+                    <td>FIPS 203 / 204</td>
+                </tr>
+                <!-- 8. AES-128 -->
+                <tr>
+                    <td><strong>AES-128</strong><br><span style="color:#64748b; font-size:6pt;">128-bit Symmetric Key</span></td>
+                    <td>Symmetric Cipher</td>
+                    <td><span class="sev sev-medium">MEDIUM</span></td>
+                    <td><span class="cia cia-c">C</span></td>
+                    <td>Grover's algorithm halves brute-force security to 2^64 ops (below 112-bit floor).</td>
+                    <td><strong>AES-256-GCM</strong></td>
+                    <td>NIST SP 800-38D</td>
+                </tr>
+                <!-- 9. DES -->
+                <tr>
+                    <td><strong>DES</strong><br><span style="color:#64748b; font-size:6pt;">56-bit Key Single DES</span></td>
+                    <td>Symmetric Cipher</td>
+                    <td><span class="sev sev-critical">CRITICAL</span></td>
+                    <td><span class="cia cia-c">C</span></td>
+                    <td>Broken classically; Grover's reduces key recovery to ~2^28 operations.</td>
+                    <td><strong>AES-256-GCM</strong></td>
+                    <td>NIST SP 800-38D</td>
+                </tr>
+                <!-- 10. 3DES -->
+                <tr>
+                    <td><strong>3DES / TDEA</strong><br><span style="color:#64748b; font-size:6pt;">Triple-DES (112-bit)</span></td>
+                    <td>Symmetric Cipher</td>
+                    <td><span class="sev sev-high">HIGH</span></td>
+                    <td><span class="cia cia-c">C</span></td>
+                    <td>Sweet32 birthday attacks on 64-bit blocks; Grover's halves key to 56 bits.</td>
+                    <td><strong>AES-256-GCM</strong></td>
+                    <td>NIST SP 800-38D</td>
+                </tr>
+                <!-- 11. Blowfish -->
+                <tr>
+                    <td><strong>Blowfish</strong><br><span style="color:#64748b; font-size:6pt;">64-bit Block Cipher</span></td>
+                    <td>Symmetric Cipher</td>
+                    <td><span class="sev sev-high">HIGH</span></td>
+                    <td><span class="cia cia-c">C</span></td>
+                    <td>Small 64-bit block size vulnerable to collision attacks; weakened by Grover's.</td>
+                    <td><strong>AES-256-GCM</strong></td>
+                    <td>NIST SP 800-38D</td>
+                </tr>
+                <!-- 12. RC4 -->
+                <tr>
+                    <td><strong>RC4</strong><br><span style="color:#64748b; font-size:6pt;">Stream Cipher (ARC4)</span></td>
+                    <td>Stream Cipher</td>
+                    <td><span class="sev sev-critical">CRITICAL</span></td>
+                    <td><span class="cia cia-c">C</span></td>
+                    <td>Statistical keystream biases allow plaintext recovery; disallowed under RFC 7465.</td>
+                    <td><strong>AES-256-GCM</strong><br><span style="color:#64748b; font-size:6pt;">Alt: ChaCha20-Poly1305</span></td>
+                    <td>NIST SP 800-38D</td>
+                </tr>
+                <!-- 13. MD5 -->
+                <tr>
+                    <td><strong>MD5</strong><br><span style="color:#64748b; font-size:6pt;">128-bit Hash Digest</span></td>
+                    <td>Hash Function</td>
+                    <td><span class="sev sev-critical">CRITICAL</span></td>
+                    <td><span class="cia cia-i">I</span></td>
+                    <td>Practical classical collision attacks; Grover's halves preimage security to 64 bits.</td>
+                    <td><strong>SHA-3-256 / SHA-512</strong></td>
+                    <td>FIPS 202</td>
+                </tr>
+                <!-- 14. SHA-1 -->
+                <tr>
+                    <td><strong>SHA-1</strong><br><span style="color:#64748b; font-size:6pt;">160-bit Hash Digest</span></td>
+                    <td>Hash Function</td>
+                    <td><span class="sev sev-high">HIGH</span></td>
+                    <td><span class="cia cia-i">I</span></td>
+                    <td>SHAttered collision demonstrated; Grover's halves preimage security to 80 bits.</td>
+                    <td><strong>SHA-3-256 / SHA-512</strong></td>
+                    <td>FIPS 202</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer-bar">
+        <span>PQC Secure-Code Reviewer Agent &bull; Track 1: Agentic Cyber Defence</span>
+        <span>Catalog Version: 2026.1 &bull; Standards: NIST FIPS 203 / 204 / 205 &bull; Page 1 of 2</span>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- ░░░ PAGE 2: PQC REPLACEMENT CODE PATTERNS & IMPLEMENTATION ░░░ -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="page-container">
+    <div>
+        <div class="header-bar">
+            <div class="title-block">
+                <h1>PQC Drop-in Replacement Implementation Architecture</h1>
+                <div class="subtitle">Automated Remediation Patterns Generated by pqc_patch_generator_tool</div>
+            </div>
+            <div class="meta-box">
+                <strong>Python (liboqs) &bull; Java (Bouncy Castle)</strong><br>
+                Human-in-the-Loop Approved &bull; Page 2 of 2
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <!-- Code Card 1: ML-KEM -->
+            <div class="card">
+                <div class="card-title">
+                    <span>🔑 1. ML-KEM-768 Key Encapsulation (FIPS 203)</span>
+                </div>
+                <div style="font-size:6.3pt; color:#475569; margin-bottom:2px;">
+                    <strong>Replaces:</strong> RSA Key Exchange, Diffie-Hellman (DH), ECDH
+                </div>
+                <pre><code><span class="code-kw">import</span> oqs  <span class="code-comment"># liboqs-python (Open Quantum Safe)</span>
+
+<span class="code-kw">def</span> <span class="code-fn">pqc_key_exchange</span>():
+    kem_algo = <span class="code-str">"ML-KEM-768"</span>  <span class="code-comment"># NIST Security Level 3</span>
+    
+    <span class="code-comment"># Client: Generate public/private keypair</span>
+    <span class="code-kw">with</span> oqs.KeyEncapsulation(kem_algo) <span class="code-kw">as</span> client:
+        client_pubkey = client.generate_keypair()
+        
+        <span class="code-comment"># Server: Encapsulate shared secret against client public key</span>
+        <span class="code-kw">with</span> oqs.KeyEncapsulation(kem_algo) <span class="code-kw">as</span> server:
+            ciphertext, secret_server = server.encap_secret(client_pubkey)
+            
+        <span class="code-comment"># Client: Decapsulate ciphertext to recover identical secret</span>
+        secret_client = client.decap_secret(ciphertext)
+        
+    <span class="code-kw">assert</span> secret_client == secret_server
+    <span class="code-kw">return</span> secret_client, client_pubkey, ciphertext</code></pre>
+            </div>
+
+            <!-- Code Card 2: ML-DSA -->
+            <div class="card">
+                <div class="card-title">
+                    <span>✍️ 2. ML-DSA-65 Digital Signatures (FIPS 204)</span>
+                </div>
+                <div style="font-size:6.3pt; color:#475569; margin-bottom:2px;">
+                    <strong>Replaces:</strong> RSA Signatures, ECDSA, DSA, Ed25519
+                </div>
+                <pre><code><span class="code-kw">import</span> oqs  <span class="code-comment"># liboqs-python (Dilithium / ML-DSA)</span>
+
+<span class="code-kw">def</span> <span class="code-fn">pqc_sign</span>(message: <span class="code-kw">bytes</span>):
+    sig_algo = <span class="code-str">"ML-DSA-65"</span>  <span class="code-comment"># NIST Security Level 3</span>
+    <span class="code-kw">with</span> oqs.Signature(sig_algo) <span class="code-kw">as</span> signer:
+        pubkey = signer.generate_keypair()
+        signature = signer.sign(message)
+    <span class="code-kw">return</span> signature, pubkey
+
+<span class="code-kw">def</span> <span class="code-fn">pqc_verify</span>(message: <span class="code-kw">bytes</span>, sig: <span class="code-kw">bytes</span>, pubkey: <span class="code-kw">bytes</span>) -> <span class="code-kw">bool</span>:
+    <span class="code-kw">with</span> oqs.Signature(<span class="code-str">"ML-DSA-65"</span>) <span class="code-kw">as</span> verifier:
+        <span class="code-kw">return</span> verifier.verify(message, sig, pubkey)</code></pre>
+            </div>
+
+            <!-- Code Card 3: AES-256-GCM -->
+            <div class="card">
+                <div class="card-title">
+                    <span>🛡️ 3. AES-256-GCM Symmetric Hardening</span>
+                </div>
+                <div style="font-size:6.3pt; color:#475569; margin-bottom:2px;">
+                    <strong>Replaces:</strong> AES-128, DES, 3DES, Blowfish, RC4
+                </div>
+                <pre><code><span class="code-kw">import</span> os
+<span class="code-kw">from</span> cryptography.hazmat.primitives.ciphers.aead <span class="code-kw">import</span> AESGCM
+
+<span class="code-kw">def</span> <span class="code-fn">encrypt_aes256_gcm</span>(plaintext: <span class="code-kw">bytes</span>, aad: <span class="code-kw">bytes</span> = <span class="code-kw">None</span>):
+    <span class="code-comment"># 256-bit key maintains 128-bit security under Grover's algorithm</span>
+    key = AESGCM.generate_key(bit_length=256)
+    nonce = os.urandom(12)  <span class="code-comment"># 96-bit unique IV/nonce</span>
+    aesgcm = AESGCM(key)
+    ciphertext = aesgcm.encrypt(nonce, plaintext, aad)
+    <span class="code-kw">return</span> ciphertext, nonce, key
+
+<span class="code-kw">def</span> <span class="code-fn">decrypt_aes256_gcm</span>(ciphertext: <span class="code-kw">bytes</span>, nonce: <span class="code-kw">bytes</span>, key: <span class="code-kw">bytes</span>):
+    <span class="code-kw">return</span> AESGCM(key).decrypt(nonce, ciphertext, <span class="code-kw">None</span>)</code></pre>
+            </div>
+
+            <!-- Code Card 4: SHA-3 -->
+            <div class="card">
+                <div class="card-title">
+                    <span>#️⃣ 4. SHA-3-256 Cryptographic Hashing (FIPS 202)</span>
+                </div>
+                <div style="font-size:6.3pt; color:#475569; margin-bottom:2px;">
+                    <strong>Replaces:</strong> MD5, SHA-1 (Broken Collision Functions)
+                </div>
+                <pre><code><span class="code-kw">import</span> hashlib
+
+<span class="code-kw">def</span> <span class="code-fn">hash_sha3_256</span>(data: <span class="code-kw">bytes</span>) -> <span class="code-kw">str</span>:
+    <span class="code-comment"># Keccak sponge construction provides 128-bit quantum</span>
+    <span class="code-comment"># collision &amp; preimage resistance against Grover attacks</span>
+    <span class="code-kw">return</span> hashlib.sha3_256(data).hexdigest()
+
+<span class="code-kw">def</span> <span class="code-fn">hash_sha512</span>(data: <span class="code-kw">bytes</span>) -> <span class="code-kw">str</span>:
+    <span class="code-comment"># 512-bit digest retains 256-bit security against Grover</span>
+    <span class="code-kw">return</span> hashlib.sha512(data).hexdigest()</code></pre>
+            </div>
+        </div>
+
+        <!-- Deployment Considerations Table -->
+        <div class="card" style="margin-top:2px;">
+            <div class="card-title">
+                <span>⚙️ Engineering &amp; Operational Migration Considerations</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Legacy Classical (e.g., RSA-2048 / ECDSA)</th>
+                        <th>Post-Quantum Replacement (ML-KEM / ML-DSA)</th>
+                        <th>Engineering Mitigation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Public Key Size</strong></td>
+                        <td>RSA: ~256 bytes &bull; ECDSA: ~64 bytes</td>
+                        <td>ML-KEM-768: <strong>1,184 bytes</strong> &bull; ML-DSA-65: <strong>1,952 bytes</strong></td>
+                        <td>Buffer enlargement; cache public keys in memory</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Ciphertext / Signature</strong></td>
+                        <td>RSA: ~256 bytes &bull; ECDSA: ~64 bytes</td>
+                        <td>ML-KEM-768: <strong>1,088 bytes</strong> &bull; ML-DSA-65: <strong>3,309 bytes</strong></td>
+                        <td>TCP Jumbo frames; TLS 1.3 fragmented records handling</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Computation Speed</strong></td>
+                        <td>RSA keygen is computationally expensive</td>
+                        <td>Lattice operations (NTT) are <strong>faster</strong> than classic RSA</td>
+                        <td>Hardware AVX2 acceleration enabled by default</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Transition Strategy</strong></td>
+                        <td>Pure classical single-key</td>
+                        <td><strong>Hybrid Scheme (X25519 + ML-KEM-768)</strong> per NIST SP 800-227</td>
+                        <td>Provides dual-layer security during transition era</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer-bar">
+        <span>PQC Secure-Code Reviewer Agent &bull; Track 1: Agentic Cyber Defence</span>
+        <span>Catalog Version: 2026.1 &bull; Standards: NIST FIPS 203 / 204 / 205 &bull; Page 2 of 2</span>
+    </div>
+</div>
+
+</body>
+</html>
+"""
+
+HTML_FILE.write_text(html_content, encoding="utf-8")
+print(f"[OK] Wrote HTML catalog to {HTML_FILE}")
+
+# Render PDF using headless Edge
+cmd = [
+    EDGE_EXE,
+    "--headless",
+    "--disable-gpu",
+    "--no-pdf-header-footer",
+    f"--print-to-pdf={PDF_FILE}",
+    str(HTML_FILE.resolve()),
+]
+
+print(f"[RUNNING] Compiling PDF catalog via Microsoft Edge headless...")
+result = subprocess.run(cmd, capture_output=True, text=True)
+
+if PDF_FILE.exists() and PDF_FILE.stat().st_size > 0:
+    print(f"[SUCCESS] PDF generated: {PDF_FILE} ({PDF_FILE.stat().st_size} bytes)")
+    
+    # Copy to Downloads folder
+    import shutil
+    shutil.copy2(PDF_FILE, DOWNLOADS_PDF)
+    print(f"[COPIED] Copied to Downloads folder: {DOWNLOADS_PDF}")
+    
+    # Check page count
+    pdf_bytes = PDF_FILE.read_bytes()
+    page_matches = re.findall(rb"/Type\s*/Page\b", pdf_bytes)
+    page_count = len(page_matches)
+    print(f"[INFO] PDF Page Count: {page_count} page(s)")
+else:
+    print(f"[ERROR] Failed to generate PDF: {result.stderr}")
+    sys.exit(1)

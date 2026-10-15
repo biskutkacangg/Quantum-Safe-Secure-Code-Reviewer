@@ -1,5 +1,5 @@
 # ============================================================
-# app.py — Streamlit Dashboard for PQC Secure-Code Reviewer Agent
+# app.py — Streamlit Dashboard for Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool
 # ============================================================
 """
 Premium Streamlit frontend that provides:
@@ -48,7 +48,7 @@ from pqc_agent.tools import LEGACY_CRYPTO_DB
 # ════════════════════════════════════════════════════════════════
 
 st.set_page_config(
-    page_title="PQC Secure-Code Reviewer Agent",
+    page_title="Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -823,7 +823,7 @@ def _handle_decision(decision: str, feedback: str):
 st.markdown("""
 <div class="hero-banner">
     <div class="hero-badge">🔬 Agentic Cyber Defence — Track 1</div>
-    <h1>🛡️ PQC Secure-Code Reviewer Agent</h1>
+    <h1>🛡️ Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool</h1>
     <p>
         AI-powered static analysis for detecting quantum-vulnerable cryptographic
         primitives.  Automatically generates NIST-standardised ML-KEM (FIPS 203)

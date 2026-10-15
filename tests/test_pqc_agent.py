@@ -14,8 +14,9 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
-# Add workspace to path
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# Add workspace root to path
+ROOT_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT_DIR))
 
 print("=" * 60)
 print("1. Testing Imports...")

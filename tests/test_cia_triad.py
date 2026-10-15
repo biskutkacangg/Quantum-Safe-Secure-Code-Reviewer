@@ -9,6 +9,16 @@ Tests verification of CIA Triad mapping across:
 """
 
 import json
+import sys
+from pathlib import Path
+
+# Ensure UTF-8 output
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT_DIR))
+
 from pqc_agent.tools import LEGACY_CRYPTO_DB, code_scanner_tool
 from pqc_agent.audit import compute_cia_summary, generate_audit_json, generate_audit_txt
 

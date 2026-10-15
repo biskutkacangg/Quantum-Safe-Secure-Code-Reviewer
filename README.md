@@ -1,4 +1,4 @@
-# 🛡️ PQC Secure-Code Reviewer Agent
+# 🛡️ Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool
 
 > **Track 1: Agentic Cyber Defence** — An AI-powered static analysis agent that detects quantum-vulnerable cryptographic primitives in Python/Java source code, generates NIST-standardised ML-KEM & ML-DSA migration patches, and enforces Human-in-the-Loop approval with a complete audit trail.
 
@@ -167,22 +167,20 @@ streamlit run app.py
 ```
 hackathon-cybersecurity-agents/
 ├── app.py                          # Streamlit dashboard (main entry point)
+├── run_app.bat                     # Windows 1-click launcher
 ├── requirements.txt                # Python dependencies
+├── pqc_config.yaml                 # Cryptographic policy & PQC configuration
 ├── .env.example                    # Environment variable template
-├── .gitignore
-├── .streamlit/
-│   └── config.toml                 # Streamlit theme configuration
-├── pqc_agent/                      # Core agent package
-│   ├── __init__.py
-│   ├── state.py                    # AgentState TypedDict + Pydantic models
-│   ├── tools.py                    # code_scanner_tool + pqc_patch_generator_tool
-│   ├── prompts.py                  # LLM prompt templates
-│   ├── graph.py                    # LangGraph state machine (5 nodes)
-│   └── audit.py                    # Audit trail generator (SHA-256 chain hash)
-├── sample_files/                   # Test files with intentional vulnerabilities
-│   ├── vulnerable_python.py        # Python: RSA, ECDSA, DES, MD5, SHA-1, etc.
-│   └── VulnerableJava.java         # Java: RSA, ECDSA, DSA, DES, MD5, etc.
-└── README.md
+├── pqc_agent/                      # Core agent package (tools, state, graph, audit, cli)
+├── reports/                        # Publication-grade PDFs & HTML research deliverables
+│   ├── PQC_Model_Parameters_and_Results_Paper_Comparison.pdf   # Literature Review (Google Scholar 2020–2025)
+│   └── PQC_Vulnerabilities_and_Replacements_Catalog.pdf        # Deprecated Algorithms & NIST Targets Catalog
+├── scripts/                        # PDF & report build scripts (generate_all_reports.py)
+├── tests/                          # Automated unit & E2E verification test suites
+├── docs/                           # Architectural blueprints & engineering specifications
+├── sample_files/                   # Intentionally vulnerable test code (Python / Java)
+├── audit_outputs/                  # Persisted runtime SHA-256 audit logs
+└── README.md                       # Master documentation & guide
 ```
 
 ---

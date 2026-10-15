@@ -285,7 +285,17 @@ def node_investigate(state: AgentState) -> dict:
         messages.append(investigation_msg)
 
         response = llm.invoke(messages)
-        chain_of_thought = response.content
+        raw_content = response.content
+        if isinstance(raw_content, list):
+            parts = []
+            for item in raw_content:
+                if isinstance(item, dict) and "text" in item:
+                    parts.append(item["text"])
+                elif isinstance(item, str):
+                    parts.append(item)
+            chain_of_thought = "\n".join(parts) if parts else str(raw_content)
+        else:
+            chain_of_thought = str(raw_content)
 
         # Extract uncertainty statements
         uncertainty_keywords = [

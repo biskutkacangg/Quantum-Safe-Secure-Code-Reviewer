@@ -1,9 +1,9 @@
 # ============================================================
 # pqc_agent/__init__.py
-# PQC Secure-Code Reviewer Agent — Package Initialiser
+# Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool — Package Initialiser
 # ============================================================
 """
-Post-Quantum Cryptography (PQC) Secure-Code Reviewer Agent.
+Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool.
 
 An agentic AI system that scans source code for legacy cryptographic
 primitives (RSA, ECC, AES-CBC, DES, MD5, SHA-1 …), reasons about

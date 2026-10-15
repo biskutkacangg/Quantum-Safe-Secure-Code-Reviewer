@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool — Pitch Deck</title>
+<style>
+    @page {
+        size: A4 landscape;
+        margin: 8mm 10mm 8mm 10mm;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: #f8fafc;
+        background: #090d16;
+        margin: 0;
+        padding: 0;
+    }
+
+    .slide-page {
+        page-break-after: always;
+        height: 192mm;
+        max-height: 192mm;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background: radial-gradient(circle at 10% 15%, #1e1b4b 0%, #0b1120 70%, #060911 100%);
+        border: 2px solid rgba(99, 102, 241, 0.35);
+        border-radius: 10px;
+        padding: 14mm 16mm 10mm 16mm;
+        position: relative;
+    }
+
+    .slide-page:last-child {
+        page-break-after: avoid;
+    }
+
+    .slide-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+        padding-bottom: 10px;
+        margin-bottom: 12px;
+    }
+
+    .slide-title-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .slide-num {
+        background: #6366f1;
+        color: #ffffff;
+        font-size: 10pt;
+        font-weight: 800;
+        padding: 4px 10px;
+        border-radius: 6px;
+    }
+
+    .slide-title {
+        font-size: 15.5pt;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: -0.01em;
+    }
+
+    .slide-tag {
+        font-size: 8.5pt;
+        color: #38bdf8;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .slide-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .grid-2col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+    }
+
+    .grid-3col {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px;
+    }
+
+    .card {
+        background: rgba(17, 27, 51, 0.75);
+        border: 1px solid rgba(99, 102, 241, 0.28);
+        border-radius: 8px;
+        padding: 18px 20px;
+    }
+
+    .card h4 {
+        font-size: 12pt;
+        font-weight: 700;
+        color: #38bdf8;
+        margin: 0 0 8px 0;
+    }
+
+    p, li {
+        font-size: 10.5pt;
+        color: #cbd5e1;
+        line-height: 1.52;
+        margin-bottom: 6px;
+    }
+
+    p:last-child, li:last-child {
+        margin-bottom: 0;
+    }
+
+    .code-snippet {
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 9.5pt;
+        background: #090e18;
+        color: #e2e8f0;
+        padding: 10px 12px;
+        border-radius: 6px;
+        line-height: 1.45;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .slide-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding-top: 8px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 8pt;
+        color: #64748b;
+    }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1 -->
+<div class="slide-page">
+    <div class="slide-header">
+        <div class="slide-title-group">
+            <span class="slide-num">01</span>
+            <span class="slide-title">Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool</span>
+        </div>
+        <span class="slide-tag">Hack@AI 2026 &bull; Track 1</span>
+    </div>
+    <div class="slide-body" style="text-align:center;">
+        <h2 style="font-size:24pt; font-weight:900; margin-bottom:12px; background:linear-gradient(135deg, #ffffff 40%, #818cf8 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
+            Autonomous Post-Quantum Cryptographic Migration
+        </h2>
+        <p style="font-size:12.5pt; color:#cbd5e1; max-width:850px; margin:0 auto 22px auto; line-height:1.55;">
+            Moving enterprise security from noisy static alert overload to explainable, human-governed remediation powered by LangGraph and NIST FIPS 203/204.
+        </p>
+        <div style="display:flex; justify-content:center; gap:16px; margin-top:6px;">
+            <div class="card" style="flex:1; max-width:270px; text-align:left;">
+                <h4 style="color:#818cf8;">🔍 AST Ingestion</h4>
+                <p>Deterministic parsing of 14 deprecated primitives with line-level accuracy and zero hallucination.</p>
+            </div>
+            <div class="card" style="flex:1; max-width:270px; text-align:left;">
+                <h4 style="color:#38bdf8;">🧠 5-Node Agent</h4>
+                <p>LangGraph state machine with CIA Triad &amp; MTU packet bloat evaluation.</p>
+            </div>
+            <div class="card" style="flex:1; max-width:270px; text-align:left;">
+                <h4 style="color:#10b981;">🛡️ Human-in-the-Loop</h4>
+                <p>Physical execution pause via interrupt() and immutable SHA-256 audit chain.</p>
+            </div>
+        </div>
+    </div>
+    <div class="slide-footer">
+        <span>Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool</span>
+        <span>Slide 1 of 6</span>
+    </div>
+</div>
+
+<!-- SLIDE 2 -->
+<div class="slide-page">
+    <div class="slide-header">
+        <div class="slide-title-group">
+            <span class="slide-num">02</span>
+            <span class="slide-title">The Problem: Shor's Algorithm &amp; HNDL Attacks</span>
+        </div>
+        <span class="slide-tag">Core Challenge</span>
+    </div>
+    <div class="slide-body">
+        <div class="grid-2col">
+            <div class="card" style="border-color:rgba(244,63,94,0.4); padding:20px 22px;">
+                <h4 style="color:#f43f5e; font-size:13pt; margin-bottom:10px;">💥 Asymmetric Collapse (Shor's Algorithm)</h4>
+                <p>Shor's algorithm breaks discrete logarithms and integer factorization in polynomial time. RSA-2048, ECDSA P-256, Ed25519, and Diffie-Hellman will provide zero security.</p>
+                <p><strong>The Active Threat:</strong> Adversaries are executing <em>Harvest Now, Decrypt Later (HNDL)</em> today—archiving encrypted enterprise ciphertext to decrypt retrospectively once quantum computers scale.</p>
+            </div>
+            <div class="card" style="border-color:rgba(245,158,11,0.4); padding:20px 22px;">
+                <h4 style="color:#fbbf24; font-size:13pt; margin-bottom:10px;">⚠️ SAST Incompetence &amp; Alert Overload</h4>
+                <p>Legacy tools like SonarQube and Bandit flag basic bugs but are blind to post-quantum migration. They produce walls of noisy, un-actionable alerts without patches.</p>
+                <p><strong>The Danger of Autonomous Agents:</strong> Blind LLMs rewrite code with hallucinations, compilation errors, and broken network protocols.</p>
+            </div>
+        </div>
+    </div>
+    <div class="slide-footer">
+        <span>Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool</span>
+        <span>Slide 2 of 6</span>
+    </div>
+</div>
+
+<!-- SLIDE 3 -->
+<div class="slide-page">
+    <div class="slide-header">
+        <div class="slide-title-group">
+            <span class="slide-num">03</span>
+            <span class="slide-title">System Architecture: 5-Node LangGraph State Machine</span>
+        </div>
+        <span class="slide-tag">Technical Architecture</span>
+    </div>
+    <div class="slide-body">
+        <div class="grid-3col">
+            <div class="card" style="padding:18px 20px;">
+                <h4 style="font-size:12.5pt; margin-bottom:8px;">01. Take In Evidence</h4>
+                <p style="color:#38bdf8; font-weight:700; margin-bottom:6px;">Node 1: INGEST &amp; Node 2: SCAN</p>
+                <p>Deterministic Python AST parsing and tokenized Java regex extract 14 deprecated primitives with line-level accuracy and zero hallucination.</p>
+            </div>
+            <div class="card" style="padding:18px 20px;">
+                <h4 style="font-size:12.5pt; margin-bottom:8px;">02. Investigate &amp; Decide</h4>
+                <p style="color:#c084fc; font-weight:700; margin-bottom:6px;">Node 3: INVESTIGATE</p>
+                <p>LLM Chain-of-Thought maps findings across the CIA Triad. Computes PQC MTU Packet Bloat and synthesizes NIST FIPS 203/204 patches.</p>
+            </div>
+            <div class="card" style="border-color:rgba(16,185,129,0.5); padding:18px 20px;">
+                <h4 style="color:#10b981; font-size:12.5pt; margin-bottom:8px;">03. Act Safely (HITL)</h4>
+                <p style="color:#10b981; font-weight:700; margin-bottom:6px;">Node 4: APPROVE &amp; Node 5: FINALISE</p>
+                <p>LangGraph <code>interrupt()</code> gate physically halts graph in memory. Requires authenticated human approval. Records SHA-256 audit chain.</p>
+            </div>
+        </div>
+    </div>
+    <div class="slide-footer">
+        <span>Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool</span>
+        <span>Slide 3 of 6</span>
+    </div>
+</div>
+
+<!-- SLIDE 4 -->
+<div class="slide-page">
+    <div class="slide-header">
+        <div class="slide-title-group">
+            <span class="slide-num">04</span>
+            <span class="slide-title">The Post-Quantum CIA Triad &amp; MTU Packet Bloat</span>
+        </div>
+        <span class="slide-tag">Cybersecurity Value</span>
+    </div>
+    <div class="slide-body">
+        <div class="grid-3col">
+            <div class="card" style="padding:18px 20px;">
+                <h4 style="color:#c084fc; font-size:12.5pt; margin-bottom:8px;">Confidentiality (HNDL)</h4>
+                <p style="margin-bottom:8px;">Mitigates passive decryption of intercepted ciphertext on public networks.</p>
+                <p><strong>NIST Standard:</strong> FIPS 203 ML-KEM-768/1024 lattice key encapsulation.</p>
+            </div>
+            <div class="card" style="padding:18px 20px;">
+                <h4 style="color:#38bdf8; font-size:12.5pt; margin-bottom:8px;">Integrity (Forgery)</h4>
+                <p style="margin-bottom:8px;">Prevents discrete log quantum forgery of ECDSA &amp; RSA signatures.</p>
+                <p><strong>NIST Standard:</strong> FIPS 204 ML-DSA-65/87 digital signatures.</p>
+            </div>
+            <div class="card" style="border-color:rgba(251,191,36,0.5); padding:18px 20px;">
+                <h4 style="color:#fbbf24; font-size:12.5pt; margin-bottom:8px;">Availability (MTU Bloat)</h4>
+                <p style="margin-bottom:8px;"><strong>Unique Innovation:</strong> ML-DSA signatures (3,309 bytes) exceed standard 1500-byte Ethernet MTUs.</p>
+                <p>Alerts network engineers to potential TCP packet fragmentation and handshake timeouts before deployment.</p>
+            </div>
+        </div>
+    </div>
+    <div class="slide-footer">
+        <span>Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool</span>
+        <span>Slide 4 of 6</span>
+    </div>
+</div>
+
+<!-- SLIDE 5 -->
+<div class="slide-page">
+    <div class="slide-header">
+        <div class="slide-title-group">
+            <span class="slide-num">05</span>
+            <span class="slide-title">Human-in-the-Loop &amp; SHA-256 Audit Trail</span>
+        </div>
+        <span class="slide-tag">Safety &amp; Compliance</span>
+    </div>
+    <div class="slide-body">
+        <div class="grid-2col">
+            <div class="card" style="padding:20px 22px;">
+                <h4 style="font-size:12.5pt; margin-bottom:8px;">🔒 Zero-Trust Human Governance</h4>
+                <p style="margin-bottom:8px;">The agent operates under strict read-only constraints. It synthesizes side-by-side diffs (Legacy RSA vs ML-KEM) but cannot write code without human sign-off.</p>
+                <div class="code-snippet">
+# LangGraph interrupt() physically suspends execution
+human_decision = interrupt({"status": "awaiting_review"})
+# Unblocked only via Command(resume=decision)
+                </div>
+            </div>
+            <div class="card" style="padding:20px 22px;">
+                <h4 style="font-size:12.5pt; margin-bottom:8px;">📋 Tamper-Evident SHA-256 Chain</h4>
+                <p style="margin-bottom:8px;">Every event is cryptographically hashed with its ancestor:</p>
+                <div class="code-snippet" style="margin-bottom:8px;">
+Hash_n = SHA256(Hash_n-1 + Timestamp + Actor + Action + Detail)
+                </div>
+                <p>Guarantees non-repudiation and immutable evidence for SOC2 and NIST SP 800-227 audit compliance.</p>
+            </div>
+        </div>
+    </div>
+    <div class="slide-footer">
+        <span>Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool</span>
+        <span>Slide 5 of 6</span>
+    </div>
+</div>
+
+<!-- SLIDE 6 -->
+<div class="slide-page">
+    <div class="slide-header">
+        <div class="slide-title-group">
+            <span class="slide-num">06</span>
+            <span class="slide-title">Empirical Benchmark &amp; Conclusion</span>
+        </div>
+        <span class="slide-tag">SOTA Validation</span>
+    </div>
+    <div class="slide-body">
+        <div class="grid-2col">
+            <div class="card" style="padding:20px 22px;">
+                <h4 style="font-size:12.5pt; margin-bottom:10px;">📊 Literature Benchmark (SECRYPT 2025)</h4>
+                <p style="line-height:1.7;">
+                    &bull; <strong>96.8% AST Precision</strong> (vs 62.4% Classical SAST)<br>
+                    &bull; <strong>&lt; 45 ms Static Scan Throughput</strong><br>
+                    &bull; <strong>100% PQC Threat Awareness</strong> (NIST FIPS 203/204)<br>
+                    &bull; <strong>Zero Unchecked Autonomous Writes</strong> (HITL Gate)
+                </p>
+            </div>
+            <div class="card" style="padding:20px 22px;">
+                <h4 style="font-size:12.5pt; margin-bottom:10px;">🚀 Active Deliverables &amp; Roadmap</h4>
+                <p style="line-height:1.7;">
+                    &bull; Interactive Streamlit Dashboard (Port 8501)<br>
+                    &bull; DevSecOps Headless CI/CD Scanner (<code>pqc_agent.cli</code>)<br>
+                    &bull; Interactive Digital Poster Web App<br>
+                    &bull; Next: LLVM/Clang C/C++ AST for embedded IoT systems
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="slide-footer">
+        <span>Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool</span>
+        <span>Slide 6 of 6</span>
+    </div>
+</div>
+
+</body>
+</html>

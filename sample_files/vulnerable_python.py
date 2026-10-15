@@ -4,8 +4,8 @@
 # ============================================================
 """
 This file contains intentionally deprecated cryptographic code
-for testing the PQC Secure-Code Reviewer Agent's detection
-capabilities.  DO NOT use this code in production.
+for testing the Post-Quantum Cryptography-Based Secure Code Review Tool's
+detection capabilities. DO NOT use this code in production.
 """
 
 import hashlib

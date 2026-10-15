@@ -53,11 +53,17 @@ Design and Development of a Post-Quantum Cryptography-Based Secure Code Review T
 │       ├── ci.yml                           # GitHub Actions build & test matrix workflow
 │       └── security-scan.yml                # SAST, SCA & cryptographic compliance pipeline
 │
-├── .streamlit/                              # STREAMLIT CONFIGURATION
-│   └── config.toml                          # UI dark theme, server port & layout config
+├── web/                                     # MODERN CYBER SOC WEB DASHBOARD
+│   ├── index.html                           # Single-page application HTML5 interface
+│   ├── styles.css                           # Obsidian dark theme, glassmorphism, glowing badges
+│   └── app.js                               # Monaco diff viewer, LangGraph circuit & audio FX
 │
-├── app.py                                   # MAIN STREAMLIT INTERACTIVE DASHBOARD (Port 8501)
-├── run_app.bat                              # 1-CLICK WINDOWS LAUNCHER (Auto-starts dashboard)
+├── server.py                                # FASTAPI HIGH-PERFORMANCE CYBER SOC SERVER (Port 8000)
+├── run_app.bat                              # 1-CLICK LAUNCHER FOR CYBER SOC DASHBOARD (Port 8000)
+├── run_streamlit.bat                        # LEGACY STREAMLIT LAUNCHER (Port 8501)
+├── run_interactive_poster.bat               # INTERACTIVE POSTER BROWSER LAUNCHER
+├── interactive_poster.html                  # Standalone interactive digital research poster
+├── app.py                                   # Legacy Streamlit Dashboard implementation
 ├── requirements.txt                         # Production Python dependencies manifest
 ├── pqc_config.yaml                          # Cryptographic policy thresholds & PQC targets
 ├── .env / .env.example                      # LLM API keys & provider configuration
@@ -96,8 +102,10 @@ Automated unit and integration verification:
 * **`test_graph_e2e.py`**: Exercises the full LangGraph state machine from ingestion, through HITL interruption, to resume and final audit closure.
 * **`test_cia_triad.py`**: Validates Confidentiality (HNDL), Integrity, and Availability risk mapping.
 
-### 5. Root Directory Files
-Kept clean and minimal:
-* **`app.py`**: The Streamlit user interface.
-* **`run_app.bat`**: Windows batch launcher that activates `.venv` and launches `app.py` in the default browser.
+### 5. Application Interfaces & Root Launchers
+* **`server.py`**: The FastAPI high-performance backend serving the modern Cyber SOC interface and LangGraph REST endpoints.
+* **`web/`**: Modern Cyber SOC Web UI featuring obsidian dark theme, Monaco side-by-side diff editor, and live state flow circuit.
+* **`run_app.bat`**: 1-click Windows launcher for the modern Cyber SOC Dashboard (`http://localhost:8000`).
+* **`run_streamlit.bat`**: Optional Windows launcher for the legacy Streamlit interface (`http://localhost:8501`).
+* **`run_interactive_poster.bat`**: Direct launcher for the standalone interactive research poster.
 * **`requirements.txt`**, **`pqc_config.yaml`**, **`Dockerfile`**, and **`README.md`**.

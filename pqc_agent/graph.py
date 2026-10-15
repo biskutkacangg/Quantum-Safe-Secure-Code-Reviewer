@@ -55,8 +55,8 @@ logger = logging.getLogger(__name__)
 # ░░░ LLM PROVIDER FACTORY ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 # ════════════════════════════════════════════════════════════════
 
-def _get_llm():
-    """Instantiate the configured LLM with tool-calling support."""
+def _get_llm(bind_tools: bool = True):
+    """Instantiate the configured LLM, optionally binding tool calls."""
     provider = os.getenv("LLM_PROVIDER", "gemini").lower()
     model = os.getenv("LLM_MODEL", "gemini-1.5-pro")
     temperature = float(os.getenv("LLM_TEMPERATURE", "0.1"))
@@ -85,8 +85,9 @@ def _get_llm():
     else:
         raise ValueError(f"Unsupported LLM provider: {provider}")
 
-    # Bind tools so the LLM can invoke them
-    return llm.bind_tools(ALL_TOOLS)
+    if bind_tools:
+        return llm.bind_tools(ALL_TOOLS)
+    return llm
 
 
 # ════════════════════════════════════════════════════════════════
@@ -271,7 +272,9 @@ def node_investigate(state: AgentState) -> dict:
 
     # --- LLM deep analysis with CoT ---
     try:
-        llm = _get_llm()
+        # We do not bind tools here because node_investigate requires pure textual
+        # Chain of Thought synthesis and risk explanation rather than tool execution.
+        llm = _get_llm(bind_tools=False)
         investigation_msg = HumanMessage(
             content=INVESTIGATION_PROMPT.format(
                 findings_json=findings_json,
@@ -280,9 +283,11 @@ def node_investigate(state: AgentState) -> dict:
             )
         )
 
-        # Get the full message history and add investigation prompt
-        messages = list(state.get("messages", []))
-        messages.append(investigation_msg)
+        # Build clean investigation message list
+        messages = [
+            SystemMessage(content=SYSTEM_PROMPT),
+            investigation_msg,
+        ]
 
         response = llm.invoke(messages)
         raw_content = response.content
@@ -293,9 +298,13 @@ def node_investigate(state: AgentState) -> dict:
                     parts.append(item["text"])
                 elif isinstance(item, str):
                     parts.append(item)
-            chain_of_thought = "\n".join(parts) if parts else str(raw_content)
+            chain_of_thought = "\n".join(parts).strip()
         else:
-            chain_of_thought = str(raw_content)
+            chain_of_thought = str(raw_content).strip()
+
+        # If LLM returned empty or stringified empty list, fallback to static synthesis
+        if not chain_of_thought or chain_of_thought in ("[]", "''", '""', "None"):
+            raise ValueError("LLM returned empty or non-textual reasoning output")
 
         # Extract uncertainty statements
         uncertainty_keywords = [
@@ -478,12 +487,17 @@ def node_finalise(state: AgentState) -> dict:
         )
         action = "PATCHES_REJECTED"
 
+    audit_detail = (
+        f"PQC migration patches {action.lower().replace('_', ' ')}. "
+        f"Reviewer feedback: {feedback or 'No additional comments.'}"
+    )
+
     audit_trail = state.get("audit_trail", [])
     audit_trail.append(
         _make_audit(
             "system",
             action,
-            final_message,
+            audit_detail,
             decision=decision,
         )
     )

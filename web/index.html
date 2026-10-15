@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quantum-Safe Secure Code Reviewer — Post-Quantum Cyber Defence</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            space: '#060811',
+            surface: '#0b101e',
+            card: '#0f172a',
+            cyanGlow: '#00f2fe',
+            purpleGlow: '#a855f7',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Monaco Editor AMD Loader -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="bg-space text-slate-100 min-h-screen flex flex-col">
+
+  <!-- ============================================================ -->
+  <!-- SCREEN 1: TITLE & AUTHENTICATION PORTAL (ENTRY SCREEN)        -->
+  <!-- ============================================================ -->
+  <div id="screen-login" class="flex-1 flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden">
+    <!-- Ambient cyber glow effects -->
+    <div class="absolute w-[600px] h-[600px] rounded-full bg-cyan-500/10 blur-[150px] pointer-events-none -top-40 -left-20"></div>
+    <div class="absolute w-[600px] h-[600px] rounded-full bg-purple-500/10 blur-[150px] pointer-events-none -bottom-40 -right-20"></div>
+
+    <div class="max-w-xl w-full z-10 space-y-8 text-center">
+      
+      <!-- TITLE HERO -->
+      <div class="space-y-4">
+        <!-- Shield Icon with glowing ring -->
+        <div class="inline-flex w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 via-sky-400 to-purple-600 p-0.5 shadow-xl shadow-cyan-500/25 mx-auto">
+          <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+            <i data-lucide="shield-alert" class="w-8 h-8 text-cyan-400"></i>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300 text-xs font-bold uppercase tracking-wider">
+            <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+            <span>NIST FIPS 203 / 204 / 205 Standards</span>
+          </div>
+          <h1 class="text-3xl md:text-5xl font-black tracking-tight text-white leading-tight">
+            <span class="bg-gradient-to-r from-cyan-400 via-sky-300 to-purple-400 bg-clip-text text-transparent">QUANTUM-SAFE</span><br>
+            SECURE CODE REVIEWER
+          </h1>
+          <p class="text-xs md:text-sm text-slate-400 max-w-lg mx-auto leading-relaxed">
+            Automated Post-Quantum Cryptography Code Audit & Migration System.
+            Protecting enterprise codebases against Shor's & Grover's quantum cryptanalysis.
+          </p>
+        </div>
+
+        <!-- Capability Pills -->
+        <div class="flex flex-wrap items-center justify-center gap-2 pt-1 text-[11px] font-semibold text-slate-400">
+          <span class="px-2.5 py-1 rounded-md bg-slate-900/80 border border-slate-800 flex items-center gap-1.5">
+            <i data-lucide="cpu" class="w-3.5 h-3.5 text-cyan-400"></i> LangGraph Agentic AI
+          </span>
+          <span class="px-2.5 py-1 rounded-md bg-slate-900/80 border border-slate-800 flex items-center gap-1.5">
+            <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-400"></i> SHA-256 Audit Ledger
+          </span>
+          <span class="px-2.5 py-1 rounded-md bg-slate-900/80 border border-slate-800 flex items-center gap-1.5">
+            <i data-lucide="user-check" class="w-3.5 h-3.5 text-amber-400"></i> Human-in-the-Loop Gate
+          </span>
+        </div>
+      </div>
+
+      <!-- LOGIN FORM CARD -->
+      <div id="login-card" class="login-glow-card p-6 md:p-8 text-left space-y-5">
+        <div class="border-b border-slate-800 pb-3 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i data-lucide="lock" class="w-4 h-4 text-cyan-400"></i>
+            <h2 class="font-bold text-xs uppercase tracking-wider text-slate-200">Portal Authentication</h2>
+          </div>
+          <span class="text-[10px] text-slate-500 font-mono">RBAC ACCESS CONTROL</span>
+        </div>
+
+        <!-- Error notification banner -->
+        <div id="login-error-msg" class="hidden p-3 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0 text-rose-400"></i>
+          <span id="login-error-text">Invalid username or password.</span>
+        </div>
+
+        <form id="login-form" class="space-y-4" onsubmit="return false;">
+          <!-- Username input -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Username</label>
+            <div class="relative">
+              <i data-lucide="user" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+              <input type="text" id="login-username" autocomplete="username" class="w-full bg-slate-950/80 pl-10 pr-4 py-2.5 rounded-lg border border-slate-800 focus:border-cyan-500 focus:outline-none text-xs text-slate-100 placeholder-slate-600 transition" placeholder="Enter username (user or admin)">
+            </div>
+          </div>
+
+          <!-- Password input -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Password</label>
+            <div class="relative">
+              <i data-lucide="key" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+              <input type="password" id="login-password" autocomplete="current-password" class="w-full bg-slate-950/80 pl-10 pr-10 py-2.5 rounded-lg border border-slate-800 focus:border-cyan-500 focus:outline-none text-xs text-slate-100 placeholder-slate-600 transition" placeholder="Enter password (0000 or 1234)">
+              <button type="button" id="btn-toggle-pwd" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" id="btn-login-submit" class="w-full py-3 rounded-lg btn-cyber-primary text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition">
+            <span>Authenticate & Enter Portal</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </form>
+
+        <!-- Quick Access Credential Chips -->
+        <div class="pt-2 border-t border-slate-800/80">
+          <div class="text-[11px] text-slate-400 font-semibold mb-2 flex items-center justify-between">
+            <span>Quick Login Presets:</span>
+            <span class="text-[10px] text-slate-500">(Click to auto-authenticate)</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" id="btn-quick-user" class="quick-cred-chip flex items-center justify-center gap-1.5">
+              <i data-lucide="user" class="w-3.5 h-3.5 text-cyan-400"></i>
+              <span>User (user / 0000)</span>
+            </button>
+            <button type="button" id="btn-quick-admin" class="quick-cred-chip admin-chip flex items-center justify-center gap-1.5">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5 text-rose-400"></i>
+              <span>Admin (admin / 1234)</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="text-[10px] text-slate-500 text-center pt-1">
+          Role-Based Access Control (RBAC) enforced • Cryptographic audit session recording
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!-- SCREEN 2: USER DASHBOARD (CURRENT CODE SCANNER WORKSPACE)    -->
+  <!-- ============================================================ -->
+  <div id="screen-user-dashboard" class="hidden flex-1 flex flex-col">
+
+    <!-- USER TOP NAVBAR -->
+    <header class="soc-nav px-6 py-3.5 border-b border-sky-500/15">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        
+        <!-- Brand & Badges -->
+        <div class="flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 ring-1 ring-white/20">
+            <i data-lucide="shield-alert" class="w-5 h-5 text-black"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-cyan-400 via-sky-300 to-purple-400 bg-clip-text text-transparent">
+                QUANTUM-SAFE CODE REVIEWER
+              </span>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                NIST FIPS 203 / 204
+              </span>
+            </div>
+            <p class="text-xs text-slate-400">User Workspace • Automated Post-Quantum Cryptography Migration</p>
+          </div>
+        </div>
+
+        <!-- Controls & Navigation -->
+        <div class="flex items-center gap-3">
+          <!-- Role Pill -->
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-semibold">
+            <i data-lucide="user-check" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>Role: <strong class="text-slate-100">Security Analyst (User)</strong></span>
+          </div>
+
+          <!-- Switch to Admin (if logged in as admin) -->
+          <button id="btn-user-to-admin" class="hidden px-3 py-1.5 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-xs font-semibold text-purple-300 flex items-center gap-1.5 transition">
+            <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-purple-400"></i>
+            <span>Admin Console</span>
+          </button>
+
+          <!-- Links -->
+          <a href="/reports/interactive_poster.html" target="_blank" class="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs font-semibold text-slate-300 flex items-center gap-1.5 transition">
+            <i data-lucide="layout-template" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>Poster</span>
+          </a>
+          <a href="/reports/System_Framework_and_Architecture_Dossier.pdf" target="_blank" class="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs font-semibold text-slate-300 flex items-center gap-1.5 transition">
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-purple-400"></i>
+            <span>Dossier</span>
+          </a>
+
+          <!-- Reset -->
+          <button id="btn-reset" class="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs font-semibold text-slate-300 flex items-center gap-1.5 transition">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>Reset</span>
+          </button>
+
+          <!-- Logout -->
+          <button id="btn-user-logout" class="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-xs font-semibold text-rose-300 flex items-center gap-1.5 transition">
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- STATE MACHINE FLOWTRACKER BAR -->
+    <div class="bg-slate-950/80 border-b border-sky-500/10 py-3 px-6">
+      <div class="max-w-7xl mx-auto flex items-center justify-between overflow-x-auto text-xs font-medium gap-4">
+        
+        <!-- Node 1: Ingest -->
+        <div id="step-ingest" class="flow-step active flex items-center gap-2.5">
+          <div class="step-icon w-7 h-7 rounded-lg border border-sky-400/40 bg-sky-500/10 flex items-center justify-center font-bold text-xs">1</div>
+          <div>
+            <div class="font-bold">Source Ingestion</div>
+            <div class="text-[10px] text-slate-400">File parsing & normalize</div>
+          </div>
+        </div>
+        <div class="h-0.5 flex-1 bg-slate-800 hidden sm:block"></div>
+
+        <!-- Node 2: Scan -->
+        <div id="step-scan" class="flow-step flex items-center gap-2.5 text-slate-400">
+          <div class="step-icon w-7 h-7 rounded-lg border border-slate-700 bg-slate-800 flex items-center justify-center font-bold text-xs">2</div>
+          <div>
+            <div class="font-bold">Static Scan (AST)</div>
+            <div class="text-[10px] text-slate-400">Regex & Python visitor</div>
+          </div>
+        </div>
+        <div class="h-0.5 flex-1 bg-slate-800 hidden sm:block"></div>
+
+        <!-- Node 3: LLM Investigate -->
+        <div id="step-investigate" class="flow-step flex items-center gap-2.5 text-slate-400">
+          <div class="step-icon w-7 h-7 rounded-lg border border-slate-700 bg-slate-800 flex items-center justify-center font-bold text-xs">3</div>
+          <div>
+            <div class="font-bold">LLM Reasoning</div>
+            <div class="text-[10px] text-slate-400">Gemini 2.5 + Patch Gen</div>
+          </div>
+        </div>
+        <div class="h-0.5 flex-1 bg-slate-800 hidden sm:block"></div>
+
+        <!-- Node 4: HITL Gate -->
+        <div id="step-hitl" class="flow-step flex items-center gap-2.5 text-slate-400">
+          <div class="step-icon w-7 h-7 rounded-lg border border-slate-700 bg-slate-800 flex items-center justify-center font-bold text-xs">4</div>
+          <div>
+            <div class="font-bold">HITL Gate</div>
+            <div class="text-[10px] text-slate-400">Human Approval</div>
+          </div>
+        </div>
+        <div class="h-0.5 flex-1 bg-slate-800 hidden sm:block"></div>
+
+        <!-- Node 5: Finalize & Audit -->
+        <div id="step-audit" class="flow-step flex items-center gap-2.5 text-slate-400">
+          <div class="step-icon w-7 h-7 rounded-lg border border-slate-700 bg-slate-800 flex items-center justify-center font-bold text-xs">5</div>
+          <div>
+            <div class="font-bold">Audit Seal</div>
+            <div class="text-[10px] text-slate-400">SHA-256 Tamper Proof</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- ░░░ LEFT COLUMN: CONTROLS & CODE INPUT (4 COLS) ░░░ -->
+      <div class="lg:col-span-4 space-y-5">
+        
+        <!-- Input Card -->
+        <div class="glass-panel p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+              <i data-lucide="terminal" class="w-4 h-4 text-cyan-400"></i>
+              <h2 class="font-bold text-sm tracking-wide text-slate-200 uppercase">Audit Target Code</h2>
+            </div>
+            <span id="detected-lang-pill" class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20">Python</span>
+          </div>
+
+          <!-- Sample Selector -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Load Benchmark Sample:</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button id="btn-load-py" class="px-3 py-2 rounded-lg bg-slate-800/90 hover:bg-slate-700/80 border border-slate-700 text-xs font-medium text-slate-200 flex items-center justify-center gap-2 transition">
+                <i data-lucide="file-code-2" class="w-3.5 h-3.5 text-cyan-400"></i>
+                <span>Python (21 Flaws)</span>
+              </button>
+              <button id="btn-load-java" class="px-3 py-2 rounded-lg bg-slate-800/90 hover:bg-slate-700/80 border border-slate-700 text-xs font-medium text-slate-200 flex items-center justify-center gap-2 transition">
+                <i data-lucide="coffee" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>Java (12 Flaws)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- File Upload Area -->
+          <div id="dropzone" class="border-2 border-dashed border-slate-700 hover:border-cyan-500/50 rounded-xl p-4 text-center cursor-pointer transition bg-slate-900/40">
+            <input type="file" id="file-input" class="hidden" accept=".py,.java,.c,.cpp,.txt">
+            <i data-lucide="upload-cloud" class="w-7 h-7 mx-auto text-slate-400 mb-2"></i>
+            <p class="text-xs font-semibold text-slate-200">Drag & drop source file</p>
+            <p class="text-[10px] text-slate-500 mt-0.5">Supports .py, .java, .c, .cpp</p>
+          </div>
+
+          <!-- Source Code Editor Textarea -->
+          <div>
+            <div class="flex items-center justify-between text-xs text-slate-400 mb-1.5">
+              <span class="font-medium">Direct Code Input / Editor:</span>
+              <span id="line-counter" class="text-[11px] font-mono text-cyan-400">0 lines</span>
+            </div>
+            <textarea id="source-code-editor" class="w-full h-44 bg-slate-950 font-mono text-xs p-3 rounded-lg border border-slate-800 focus:border-cyan-500 focus:outline-none text-slate-200 resize-y" placeholder="Paste source code to scan..."></textarea>
+          </div>
+
+          <!-- Agent Configuration Accordion -->
+          <div class="border border-slate-800 rounded-lg p-3 bg-slate-900/30 space-y-2.5">
+            <div class="flex items-center justify-between text-xs text-slate-300 font-semibold">
+              <span class="flex items-center gap-1.5">
+                <i data-lucide="sliders" class="w-3.5 h-3.5 text-purple-400"></i>
+                <span>Agent Reasoning Parameters</span>
+              </span>
+              <span class="text-[10px] text-slate-500 font-mono">Gemini 2.5 Flash</span>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Temperature:</label>
+                <input type="number" id="cfg-temperature" min="0.0" max="1.0" step="0.1" value="0.1" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-slate-200 font-mono text-xs">
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Target PQC Level:</label>
+                <select id="cfg-pqc-level" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-slate-200 text-xs">
+                  <option value="3">NIST Level 3 (ML-KEM-768)</option>
+                  <option value="5">NIST Level 5 (ML-KEM-1024)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Primary Trigger Button -->
+          <button id="btn-scan" class="w-full py-3.5 rounded-xl btn-cyber-primary text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2">
+            <i data-lucide="radar" class="w-4 h-4"></i>
+            <span>Execute PQC Security Audit</span>
+          </button>
+        </div>
+
+        <!-- CIA Triad Status Panel -->
+        <div class="glass-panel p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div class="flex items-center gap-2">
+              <i data-lucide="shield" class="w-4 h-4 text-cyan-400"></i>
+              <h3 class="font-bold text-xs tracking-wide text-slate-200 uppercase">CIA Triad Impact Breakdown</h3>
+            </div>
+            <span class="text-[10px] text-slate-500 font-mono">POST-QUANTUM IMPACT</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <!-- Confidentiality (C) -->
+            <button id="pill-cia-c" class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-cyan-500/50 text-left transition flex flex-col justify-between">
+              <div class="flex items-center justify-between w-full">
+                <span class="text-[10px] font-bold text-slate-400 uppercase">Confidentiality</span>
+                <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+              </div>
+              <div class="mt-2">
+                <span id="cia-count-c" class="text-xl font-black text-cyan-400">0</span>
+                <span class="text-[10px] text-slate-500 block">Flaws (HNDL)</span>
+              </div>
+            </button>
+
+            <!-- Integrity (I) -->
+            <button id="pill-cia-i" class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-purple-500/50 text-left transition flex flex-col justify-between">
+              <div class="flex items-center justify-between w-full">
+                <span class="text-[10px] font-bold text-slate-400 uppercase">Integrity</span>
+                <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+              </div>
+              <div class="mt-2">
+                <span id="cia-count-i" class="text-xl font-black text-purple-400">0</span>
+                <span class="text-[10px] text-slate-500 block">Signatures/Forge</span>
+              </div>
+            </button>
+
+            <!-- Availability (A) -->
+            <button id="pill-cia-a" class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-amber-500/50 text-left transition flex flex-col justify-between">
+              <div class="flex items-center justify-between w-full">
+                <span class="text-[10px] font-bold text-slate-400 uppercase">Availability</span>
+                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+              </div>
+              <div class="mt-2">
+                <span id="cia-count-a" class="text-xl font-black text-amber-400">0</span>
+                <span class="text-[10px] text-slate-500 block">MTU/Bloat Risk</span>
+              </div>
+            </button>
+          </div>
+          
+          <div class="text-[11px] text-slate-400 leading-snug">
+            💡 Click any CIA pillar to filter vulnerabilities instantly by cryptographic impact type.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ░░░ RIGHT COLUMN: TABS & RESULTS (8 COLS) ░░░ -->
+      <div class="lg:col-span-8 space-y-5">
+
+        <!-- HITL GATE STATUS BANNER (When scan complete, pending human approval) -->
+        <div id="hitl-banner" class="hidden glass-panel p-4 border border-amber-500/40 bg-amber-500/10 rounded-xl space-y-3">
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center font-bold text-sm">
+                !
+              </div>
+              <div>
+                <h4 class="font-bold text-sm text-amber-200">Human-in-the-Loop Review Gate (Active)</h4>
+                <p class="text-xs text-amber-300/80">LangGraph paused at interrupt gate. Review proposed PQC patches and approve or reject.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="btn-approve-all" class="px-4 py-2 rounded-lg btn-cyber-approve text-xs flex items-center gap-1.5 shadow-lg">
+                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                <span>Approve All Patches</span>
+              </button>
+              <button id="btn-reject-all" class="px-4 py-2 rounded-lg btn-cyber-reject text-xs flex items-center gap-1.5 shadow-lg">
+                <i data-lucide="x-circle" class="w-4 h-4"></i>
+                <span>Reject Patches</span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Optional Reviewer Feedback Input -->
+          <div class="pt-2 border-t border-amber-500/20">
+            <input type="text" id="reviewer-feedback" placeholder="Optional cryptographer sign-off note (e.g. Approved for FIPS 203 ML-KEM migration pilot)..." class="w-full bg-slate-950/70 text-xs px-3 py-1.5 rounded border border-amber-500/30 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-400">
+          </div>
+        </div>
+
+        <!-- HITL DECISION COMPLETE BANNER -->
+        <div id="hitl-complete-banner" class="hidden glass-panel p-4 rounded-xl space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div id="complete-icon" class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+                ✓
+              </div>
+              <div>
+                <h4 id="complete-title" class="font-bold text-sm text-emerald-300">Patches Approved & Verified</h4>
+                <p id="complete-subtitle" class="text-xs text-slate-400">Cryptographic audit log sealed and ready for export.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="btn-export-json" class="px-3 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-xs font-semibold text-cyan-300 flex items-center gap-1.5 transition">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                <span>Export JSON</span>
+              </button>
+              <button id="btn-export-txt" class="px-3 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-xs font-semibold text-purple-300 flex items-center gap-1.5 transition">
+                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                <span>Export TXT</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAIN TABS CONTAINER -->
+        <div class="glass-panel overflow-hidden">
+          
+          <!-- Tab Navigation Bar -->
+          <div class="flex items-center border-b border-slate-800 bg-slate-950/40 overflow-x-auto text-xs font-semibold">
+            <button class="soc-tab active px-5 py-3 flex items-center gap-2" data-tab="tab-findings">
+              <i data-lucide="search" class="w-4 h-4 text-cyan-400"></i>
+              <span>Vulnerabilities</span>
+              <span id="tab-badge-findings" class="ml-1 px-1.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-bold">0</span>
+            </button>
+
+            <button class="soc-tab px-5 py-3 flex items-center gap-2" data-tab="tab-patches">
+              <i data-lucide="git-compare" class="w-4 h-4 text-sky-400"></i>
+              <span>Monaco Diff & Patches</span>
+              <span id="tab-badge-patches" class="ml-1 px-1.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-bold">0</span>
+            </button>
+
+            <button class="soc-tab px-5 py-3 flex items-center gap-2" data-tab="tab-cia">
+              <i data-lucide="shield" class="w-4 h-4 text-purple-400"></i>
+              <span>CIA Triad Analysis</span>
+            </button>
+
+            <button class="soc-tab px-5 py-3 flex items-center gap-2" data-tab="tab-cot">
+              <i data-lucide="brain-circuit" class="w-4 h-4 text-cyan-400"></i>
+              <span>Explainable AI (CoT)</span>
+            </button>
+
+            <button class="soc-tab px-5 py-3 flex items-center gap-2" data-tab="tab-audit">
+              <i data-lucide="file-check-2" class="w-4 h-4 text-emerald-400"></i>
+              <span>Audit Trail & Hash</span>
+            </button>
+
+            <button class="soc-tab px-5 py-3 flex items-center gap-2" data-tab="tab-limits">
+              <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i>
+              <span>Limitations</span>
+            </button>
+          </div>
+
+          <!-- TAB 1: VULNERABILITIES LIST -->
+          <div id="tab-findings" class="tab-pane p-5 space-y-4">
+            <!-- Filter Bar -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-400 font-medium">Filter Severity:</span>
+                <select id="filter-severity" class="bg-slate-900 border border-slate-800 rounded px-2.5 py-1 text-xs text-slate-200">
+                  <option value="ALL">All Severities</option>
+                  <option value="CRITICAL">Critical Only</option>
+                  <option value="HIGH">High Only</option>
+                  <option value="MEDIUM">Medium Only</option>
+                </select>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="text" id="filter-search" placeholder="Search algorithm or file..." class="bg-slate-900 border border-slate-800 rounded px-3 py-1 text-xs text-slate-200 placeholder-slate-500 w-48">
+              </div>
+            </div>
+
+            <!-- Dynamic Findings List Container -->
+            <div id="findings-list" class="space-y-3 max-h-[520px] overflow-y-auto pr-1">
+              <div class="text-center py-12 text-slate-500 text-xs">
+                <i data-lucide="radar" class="w-8 h-8 mx-auto mb-2 text-slate-600"></i>
+                Ready to review. Load a benchmark sample or paste code and click "Execute PQC Security Audit".
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: MONACO SIDE-BY-SIDE DIFF EDITOR & PQC PATCHES -->
+          <div id="tab-patches" class="tab-pane hidden p-5 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-300 font-semibold">Select Patch to Inspect:</span>
+                <select id="patch-selector" class="bg-slate-900 border border-slate-800 rounded px-3 py-1 text-xs text-cyan-400 font-mono">
+                  <option value="">No patches generated yet</option>
+                </select>
+              </div>
+              <div class="flex items-center gap-2">
+                <span id="patch-fips-pill" class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20 font-mono">FIPS 203</span>
+                <button id="btn-copy-patch" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 flex items-center gap-1.5 transition">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                  <span>Copy Patched Code</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Monaco Container -->
+            <div class="border border-slate-800 rounded-xl overflow-hidden shadow-inner">
+              <div class="bg-slate-950 px-4 py-2 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400 font-mono">
+                <span class="text-rose-400">🔴 Original Legacy Vulnerable Code</span>
+                <span class="text-emerald-400">🟢 Quantum-Safe PQC Replacement (NIST Standard)</span>
+              </div>
+              <div id="monaco-diff-container" class="w-full h-80 bg-slate-950"></div>
+            </div>
+
+            <!-- Patch Explanation Note -->
+            <div id="patch-note-box" class="p-3.5 rounded-lg bg-slate-900/60 border border-slate-800 text-xs text-slate-300 leading-relaxed font-sans">
+              Select a patch above to view the exact AST diff and post-quantum cryptographic explanation.
+            </div>
+          </div>
+
+          <!-- TAB 3: CIA TRIAD ANALYSIS -->
+          <div id="tab-cia" class="tab-pane hidden p-5 space-y-4">
+            <div class="border-b border-slate-800 pb-3 flex items-center justify-between">
+              <div>
+                <h4 class="font-bold text-xs uppercase tracking-wide text-slate-200">Holistic CIA Triad Post-Quantum Assessment</h4>
+                <p class="text-xs text-slate-400">Analyzing the impact of quantum algorithms on each fundamental security pillar.</p>
+              </div>
+              <span class="text-[10px] font-mono text-cyan-400">NIST IR 8547 Guidelines</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- Confidentiality Column -->
+              <div class="glass-panel p-4 space-y-3 border-t-2 border-t-cyan-400">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-xs text-cyan-400 uppercase">1. Confidentiality (C)</span>
+                  <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                </div>
+                <div class="text-xs text-slate-300 space-y-2">
+                  <p><strong>Primary Threat:</strong> <span class="text-rose-400">Harvest Now, Decrypt Later (HNDL)</span>.</p>
+                  <p class="text-slate-400 text-[11px] leading-relaxed">Adversaries intercept encrypted traffic today to decrypt once a CRQC (Cryptanalytically Relevant Quantum Computer) exists.</p>
+                  <div class="p-2 rounded bg-slate-950 text-[11px] font-mono text-cyan-300 border border-slate-900">
+                    Fix: ML-KEM-768 (FIPS 203) / Kyber Lattice KEM
+                  </div>
+                </div>
+              </div>
+
+              <!-- Integrity Column -->
+              <div class="glass-panel p-4 space-y-3 border-t-2 border-t-purple-400">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-xs text-purple-400 uppercase">2. Integrity (I)</span>
+                  <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+                </div>
+                <div class="text-xs text-slate-300 space-y-2">
+                  <p><strong>Primary Threat:</strong> <span class="text-rose-400">Signature Forgery via Shor's</span>.</p>
+                  <p class="text-slate-400 text-[11px] leading-relaxed">Shor's algorithm solves elliptic curve discrete logarithms, permitting private key extraction and illegitimate signing.</p>
+                  <div class="p-2 rounded bg-slate-950 text-[11px] font-mono text-purple-300 border border-slate-900">
+                    Fix: ML-DSA-65 (FIPS 204) / Dilithium Lattice Signatures
+                  </div>
+                </div>
+              </div>
+
+              <!-- Availability Column -->
+              <div class="glass-panel p-4 space-y-3 border-t-2 border-t-amber-400">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-xs text-amber-400 uppercase">3. Availability (A)</span>
+                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                </div>
+                <div class="text-xs text-slate-300 space-y-2">
+                  <p><strong>Primary Threat:</strong> <span class="text-amber-300">Packet Bloat & MTU Fragmentation</span>.</p>
+                  <p class="text-slate-400 text-[11px] leading-relaxed">PQC public keys and ciphertexts are 10-100x larger than RSA/ECC, risking TCP reassembly drops and buffer overruns.</p>
+                  <div class="p-2 rounded bg-slate-950 text-[11px] font-mono text-amber-300 border border-slate-900">
+                    Mitigation: MTU Tuning & Lightweight Keystores
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CIA Triad Matrix Table -->
+            <div class="pt-2">
+              <h5 class="text-xs font-bold text-slate-300 mb-2">Algorithm to CIA Impact Reference Matrix:</h5>
+              <div class="overflow-x-auto rounded-lg border border-slate-800">
+                <table class="w-full text-left text-xs text-slate-300 font-mono">
+                  <thead class="bg-slate-950 text-slate-400 uppercase text-[10px]">
+                    <tr>
+                      <th class="p-2.5">Algorithm</th>
+                      <th class="p-2.5">Category</th>
+                      <th class="p-2.5">Confidentiality</th>
+                      <th class="p-2.5">Integrity</th>
+                      <th class="p-2.5">Availability Overhead</th>
+                      <th class="p-2.5">Target PQC Standard</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-800/60 bg-slate-900/30 text-[11px]">
+                    <tr>
+                      <td class="p-2.5 font-bold text-rose-400">RSA</td>
+                      <td class="p-2.5">Asymmetric / KEM</td>
+                      <td class="p-2.5 text-cyan-400">CRITICAL (HNDL)</td>
+                      <td class="p-2.5 text-purple-400">CRITICAL (Forged)</td>
+                      <td class="p-2.5 text-amber-400">High (+1184B Public Key)</td>
+                      <td class="p-2.5 text-emerald-400">FIPS 203 ML-KEM-768</td>
+                    </tr>
+                    <tr>
+                      <td class="p-2.5 font-bold text-rose-400">ECDSA</td>
+                      <td class="p-2.5">Digital Signature</td>
+                      <td class="p-2.5 text-slate-500">N/A</td>
+                      <td class="p-2.5 text-purple-400">CRITICAL (Forged)</td>
+                      <td class="p-2.5 text-amber-400">High (+3293B Signature)</td>
+                      <td class="p-2.5 text-emerald-400">FIPS 204 ML-DSA-65</td>
+                    </tr>
+                    <tr>
+                      <td class="p-2.5 font-bold text-rose-400">DSA</td>
+                      <td class="p-2.5">Digital Signature</td>
+                      <td class="p-2.5 text-slate-500">N/A</td>
+                      <td class="p-2.5 text-purple-400">CRITICAL (Forged)</td>
+                      <td class="p-2.5 text-amber-400">High (+3293B Signature)</td>
+                      <td class="p-2.5 text-emerald-400">FIPS 204 ML-DSA-65</td>
+                    </tr>
+                    <tr>
+                      <td class="p-2.5 font-bold text-rose-400">DES / 3DES</td>
+                      <td class="p-2.5">Symmetric Cipher</td>
+                      <td class="p-2.5 text-cyan-400">CRITICAL (Classically Broken)</td>
+                      <td class="p-2.5 text-slate-500">N/A</td>
+                      <td class="p-2.5 text-emerald-400">Low (Fast GCM Hardware)</td>
+                      <td class="p-2.5 text-emerald-400">AES-256-GCM</td>
+                    </tr>
+                    <tr>
+                      <td class="p-2.5 font-bold text-rose-400">MD5 / SHA-1</td>
+                      <td class="p-2.5">Hash Function</td>
+                      <td class="p-2.5 text-slate-500">N/A</td>
+                      <td class="p-2.5 text-purple-400">CRITICAL (Collisions)</td>
+                      <td class="p-2.5 text-emerald-400">Low</td>
+                      <td class="p-2.5 text-emerald-400">SHA-3-256 / SHA-512</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: EXPLAINABLE AI (COT) -->
+          <div id="tab-cot" class="tab-pane hidden p-5 space-y-4">
+            <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+              <i data-lucide="sparkles" class="w-4 h-4 text-purple-400"></i>
+              <h4 class="font-bold text-xs text-slate-200 uppercase tracking-wide">Agent Chain of Thought & Reasoning</h4>
+            </div>
+            <div id="cot-content" class="p-4 rounded-xl bg-slate-950 font-mono text-xs text-slate-300 whitespace-pre-wrap leading-relaxed border border-slate-800">
+              Chain of thought analysis will appear here after LLM reasoning.
+            </div>
+            <div id="uncertainty-box" class="hidden p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200">
+              <strong class="font-bold flex items-center gap-1.5 mb-1">
+                <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+                <span>Explicit Uncertainty Statement:</span>
+              </strong>
+              <span id="uncertainty-text"></span>
+            </div>
+          </div>
+
+          <!-- TAB 5: AUDIT TRAIL & HASHING -->
+          <div id="tab-audit" class="tab-pane hidden p-5 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+              <div class="flex items-center gap-2">
+                <i data-lucide="lock" class="w-4 h-4 text-emerald-400"></i>
+                <span class="font-bold text-xs text-slate-200 uppercase tracking-wide">Cryptographic Audit Trail (SHA-256 Sealed)</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] text-slate-400">Chain Hash:</span>
+                <code id="audit-chain-hash" class="text-[10px] text-cyan-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 font-mono">0000000000000000...</code>
+              </div>
+            </div>
+            <div id="audit-timeline" class="terminal-window p-4 h-72 overflow-y-auto space-y-2.5 text-xs text-slate-300">
+              <div class="text-slate-500 text-xs italic">[System idle. Waiting for scan execution...]</div>
+            </div>
+          </div>
+
+          <!-- TAB 6: LIMITATIONS -->
+          <div id="tab-limits" class="tab-pane hidden p-5 space-y-3 text-xs text-slate-300 leading-relaxed">
+            <h4 class="font-bold text-sm text-amber-400 flex items-center gap-2">
+              <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+              <span>Responsible Design — Disclosures & Limitations</span>
+            </h4>
+            <ul class="list-disc pl-5 space-y-2 text-slate-400 text-xs">
+              <li><strong>Static Analysis Only:</strong> Performs AST node matching and regex catalog searches. Cannot trace dynamic code reflection or runtime dependency injection.</li>
+              <li><strong>Context Blindness:</strong> Scanner cannot differentiate test mocks or sample fixtures from production microservices.</li>
+              <li><strong>Hybrid Transition NIST SP 800-227:</strong> Recommends pure PQC (ML-KEM-768). Production environments should consider hybrid schemes (X25519 + ML-KEM-768) during migration.</li>
+              <li><strong>Library Availability:</strong> Patches rely on <code class="text-cyan-400">liboqs-python</code> or Bouncy Castle PQC, which must be installed in target environments.</li>
+              <li><strong>Deterministic Human Authority:</strong> No code patch is ever applied automatically without explicit HITL human signature.</li>
+            </ul>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!-- SCREEN 3: ADMINISTRATOR DASHBOARD (SOC COMMAND & CONTROL)   -->
+  <!-- ============================================================ -->
+  <div id="screen-admin-dashboard" class="hidden flex-1 flex flex-col">
+
+    <!-- ADMIN TOP NAVBAR -->
+    <header class="soc-nav px-6 py-3.5 border-b border-rose-500/20 bg-slate-950/90">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        
+        <!-- Brand & Badges -->
+        <div class="flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-500 to-amber-500 flex items-center justify-center shadow-lg shadow-rose-500/25 ring-1 ring-white/20">
+            <i data-lucide="shield-check" class="w-5 h-5 text-white"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-rose-400 via-amber-300 to-rose-300 bg-clip-text text-transparent">
+                QUANTUM-SAFE SECURE REVIEWER
+              </span>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full admin-badge-crimson">
+                ADMIN SOC CONSOLE
+              </span>
+            </div>
+            <p class="text-xs text-slate-400">Chief Information Security Officer & Administrator Control Plane</p>
+          </div>
+        </div>
+
+        <!-- Controls & Navigation -->
+        <div class="flex items-center gap-3">
+          <!-- Admin Role Pill -->
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-semibold">
+            <span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
+            <span>Role: <strong class="text-white">System Administrator</strong></span>
+          </div>
+
+          <!-- Switch to Reviewer Workspace -->
+          <button id="btn-admin-to-reviewer" class="px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-xs font-semibold text-cyan-300 flex items-center gap-1.5 transition">
+            <i data-lucide="terminal" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>Switch to Reviewer Workspace</span>
+          </button>
+
+          <!-- Links -->
+          <a href="/reports/interactive_poster.html" target="_blank" class="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs font-semibold text-slate-300 flex items-center gap-1.5 transition">
+            <i data-lucide="layout-template" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>Poster</span>
+          </a>
+          <a href="/reports/System_Framework_and_Architecture_Dossier.pdf" target="_blank" class="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs font-semibold text-slate-300 flex items-center gap-1.5 transition">
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-purple-400"></i>
+            <span>Dossier</span>
+          </a>
+
+          <!-- Logout -->
+          <button id="btn-admin-logout" class="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-xs font-semibold text-rose-300 flex items-center gap-1.5 transition">
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- ADMIN EXECUTIVE STATS / KPI RIBBON -->
+    <div class="bg-slate-950 border-b border-rose-500/15 py-4 px-6">
+      <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-3.5">
+        
+        <!-- KPI 1 -->
+        <div class="admin-kpi-card p-3.5 space-y-1">
+          <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase">
+            <span>Catalog Primitives</span>
+            <i data-lucide="database" class="w-3.5 h-3.5 text-rose-400"></i>
+          </div>
+          <div class="text-xl font-black text-rose-400" id="admin-kpi-primitives">10 Algorithms</div>
+          <div class="text-[10px] text-slate-500">4 Cryptographic Classes</div>
+        </div>
+
+        <!-- KPI 2 -->
+        <div class="admin-kpi-card p-3.5 space-y-1">
+          <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase">
+            <span>PQC Standards</span>
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+          </div>
+          <div class="text-xl font-black text-emerald-400">FIPS 203/204/205</div>
+          <div class="text-[10px] text-slate-500">ML-KEM, ML-DSA, SLH-DSA</div>
+        </div>
+
+        <!-- KPI 3 -->
+        <div class="admin-kpi-card p-3.5 space-y-1">
+          <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase">
+            <span>Audit Chain Status</span>
+            <i data-lucide="lock" class="w-3.5 h-3.5 text-cyan-400"></i>
+          </div>
+          <div class="text-xl font-black text-cyan-400">SHA-256 Sealed</div>
+          <div class="text-[10px] text-slate-500">Tamper-Proof Blockchain Hash</div>
+        </div>
+
+        <!-- KPI 4 -->
+        <div class="admin-kpi-card p-3.5 space-y-1">
+          <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase">
+            <span>LLM Gateway</span>
+            <i data-lucide="cpu" class="w-3.5 h-3.5 text-purple-400"></i>
+          </div>
+          <div class="text-xl font-black text-purple-400" id="admin-kpi-llm">Gemini 2.5 Flash</div>
+          <div class="text-[10px] text-slate-500">LangGraph Agent Engine</div>
+        </div>
+
+        <!-- KPI 5 -->
+        <div class="admin-kpi-card p-3.5 space-y-1">
+          <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase">
+            <span>Y2Q Threat Clock</span>
+            <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-400"></i>
+          </div>
+          <div class="text-xl font-black text-amber-400">2029-2030 Horizon</div>
+          <div class="text-[10px] text-slate-500">Active Migration Mandate</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ADMIN MAIN CONTENT AREA -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
+
+      <!-- ADMIN TABS CONTAINER -->
+      <div class="glass-panel overflow-hidden border border-rose-500/20">
+        
+        <!-- Tab Navigation Bar -->
+        <div class="flex items-center border-b border-slate-800 bg-slate-950/60 overflow-x-auto text-xs font-semibold">
+          <button class="admin-tab active px-5 py-3.5 flex items-center gap-2" data-admintab="tab-admin-threats">
+            <i data-lucide="database" class="w-4 h-4 text-rose-400"></i>
+            <span>PQC Threat Database & NIST Standards Mapping</span>
+          </button>
+
+          <button class="admin-tab px-5 py-3.5 flex items-center gap-2" data-admintab="tab-admin-diagnostics">
+            <i data-lucide="activity" class="w-4 h-4 text-cyan-400"></i>
+            <span>System Health & Ledger Integrity Verifier</span>
+          </button>
+
+          <button class="admin-tab px-5 py-3.5 flex items-center gap-2" data-admintab="tab-admin-governance">
+            <i data-lucide="sliders" class="w-4 h-4 text-purple-400"></i>
+            <span>Security Policies & PQC Governance</span>
+          </button>
+
+          <button class="admin-tab px-5 py-3.5 flex items-center gap-2" data-admintab="tab-admin-logs">
+            <i data-lucide="file-text" class="w-4 h-4 text-emerald-400"></i>
+            <span>Enterprise Audit & SOC Compliance Logs</span>
+          </button>
+        </div>
+
+        <!-- TAB 1: PQC THREAT DATABASE & NIST STANDARDS MAPPING -->
+        <div id="tab-admin-threats" class="admin-pane p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
+            <div>
+              <h3 class="font-bold text-xs uppercase tracking-wider text-slate-200">Cryptographic Vulnerability Catalog (`LEGACY_CRYPTO_DB`)</h3>
+              <p class="text-xs text-slate-400">Complete canonical database of deprecated cryptographic algorithms and their FIPS quantum-safe targets.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="text" id="admin-search-catalog" placeholder="Search algorithm, standard, or threat..." class="bg-slate-900 border border-slate-800 rounded px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 w-64 focus:outline-none focus:border-rose-400">
+            </div>
+          </div>
+
+          <!-- Catalog Table -->
+          <div class="overflow-x-auto rounded-xl border border-slate-800">
+            <table class="w-full text-left text-xs font-mono text-slate-300">
+              <thead class="bg-slate-950 text-slate-400 uppercase text-[10px] border-b border-slate-800">
+                <tr>
+                  <th class="p-3">Algorithm</th>
+                  <th class="p-3">Category</th>
+                  <th class="p-3">Quantum Threat & Mathematical Vulnerability</th>
+                  <th class="p-3">Target PQC Replacement</th>
+                  <th class="p-3">NIST Standard</th>
+                  <th class="p-3">CIA Impact</th>
+                  <th class="p-3">Severity</th>
+                </tr>
+              </thead>
+              <tbody id="admin-catalog-tbody" class="divide-y divide-slate-800/60 bg-slate-900/30 text-[11px]">
+                <!-- Populated dynamically via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 2: SYSTEM HEALTH & LEDGER INTEGRITY VERIFIER -->
+        <div id="tab-admin-diagnostics" class="admin-pane hidden p-5 space-y-6">
+          <div class="border-b border-slate-800 pb-3">
+            <h3 class="font-bold text-xs uppercase tracking-wider text-slate-200">System Architecture Diagnostics & Gateway Status</h3>
+            <p class="text-xs text-slate-400">Real-time health verification of LLM endpoints, static rule engines, and tamper-evident audit ledger.</p>
+          </div>
+
+          <!-- Diagnostics Cards Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            
+            <div class="glass-panel p-4 space-y-2 border-l-4 border-l-purple-500">
+              <div class="flex items-center justify-between text-xs font-bold text-slate-200">
+                <span>Google Gemini API</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px]">CONNECTED</span>
+              </div>
+              <div class="text-[11px] text-slate-400 space-y-1">
+                <div>Model: <strong class="text-purple-300" id="diag-llm-model">gemini-2.5-flash</strong></div>
+                <div>Sampling Temp: <strong class="text-slate-200">0.1 (Deterministic)</strong></div>
+                <div>Status: <span class="text-emerald-400 font-semibold">Active & Healthy</span></div>
+              </div>
+            </div>
+
+            <div class="glass-panel p-4 space-y-2 border-l-4 border-l-cyan-500">
+              <div class="flex items-center justify-between text-xs font-bold text-slate-200">
+                <span>Python AST Engine</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px]">ACTIVE</span>
+              </div>
+              <div class="text-[11px] text-slate-400 space-y-1">
+                <div>Parser: <strong class="text-cyan-300">AST Node Visitor</strong></div>
+                <div>Rules: <strong class="text-slate-200">21 Detection Heuristics</strong></div>
+                <div>Target: <span class="text-slate-200">Python 3.9 - 3.12</span></div>
+              </div>
+            </div>
+
+            <div class="glass-panel p-4 space-y-2 border-l-4 border-l-amber-500">
+              <div class="flex items-center justify-between text-xs font-bold text-slate-200">
+                <span>Java Regex Engine</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px]">ACTIVE</span>
+              </div>
+              <div class="text-[11px] text-slate-400 space-y-1">
+                <div>Parser: <strong class="text-amber-300">Regex Multi-Pattern</strong></div>
+                <div>Rules: <strong class="text-slate-200">12 Security Patterns</strong></div>
+                <div>Target: <span class="text-slate-200">JCA / JCE Cryptography</span></div>
+              </div>
+            </div>
+
+            <div class="glass-panel p-4 space-y-2 border-l-4 border-l-emerald-500">
+              <div class="flex items-center justify-between text-xs font-bold text-slate-200">
+                <span>LangGraph State Graph</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px]">COMPILED</span>
+              </div>
+              <div class="text-[11px] text-slate-400 space-y-1">
+                <div>Checkpointer: <strong class="text-emerald-300">MemorySaver</strong></div>
+                <div>Interrupt Node: <strong class="text-slate-200">Human Approval</strong></div>
+                <div>Thread Isolation: <span class="text-slate-200">Active</span></div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- INTERACTIVE LEDGER INTEGRITY VERIFIER -->
+          <div class="glass-panel p-5 border border-emerald-500/30 bg-emerald-500/5 rounded-xl space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400"></i>
+                <h4 class="font-bold text-xs uppercase tracking-wide text-emerald-200">Blockchain-Style Cryptographic Ledger Integrity Check</h4>
+              </div>
+              <span class="text-[10px] font-mono text-emerald-400">SHA-256 RECURSIVE HASH VERIFICATION</span>
+            </div>
+            
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Every audit record, user authentication, and human sign-off decision is cryptographically chained using SHA-256 blocks:
+              <code class="text-cyan-300 bg-slate-950 px-1.5 py-0.5 rounded">H_n = SHA-256(H_{n-1} || Entry_n)</code>.
+              Click below to run a live cryptographic integrity audit across all session blocks.
+            </p>
+
+            <div class="flex flex-wrap items-center gap-3 pt-2">
+              <button id="btn-verify-ledger" class="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs flex items-center gap-2 transition shadow-lg shadow-emerald-500/20">
+                <i data-lucide="check-check" class="w-4 h-4"></i>
+                <span>Run SHA-256 Chain Verification</span>
+              </button>
+              <div id="ledger-verification-output" class="text-xs font-mono text-slate-400">
+                Ledger unverified in this session. Click button to inspect.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: SECURITY POLICIES & PQC GOVERNANCE -->
+        <div id="tab-admin-governance" class="admin-pane hidden p-5 space-y-6">
+          <div class="border-b border-slate-800 pb-3">
+            <h3 class="font-bold text-xs uppercase tracking-wider text-slate-200">Administrative Security Policies & PQC Migration Governance</h3>
+            <p class="text-xs text-slate-400">Configure organization-wide cryptographic standards, enforcement thresholds, and human-in-the-loop mandates.</p>
+          </div>
+
+          <div class="space-y-4 max-w-3xl">
+            
+            <!-- Policy 1 -->
+            <div class="glass-panel p-4 flex items-center justify-between gap-4">
+              <div class="space-y-1">
+                <div class="font-bold text-xs text-slate-200 flex items-center gap-2">
+                  <i data-lucide="user-check" class="w-4 h-4 text-cyan-400"></i>
+                  <span>Mandatory Human-in-the-Loop (HITL) Sign-off Gate</span>
+                </div>
+                <p class="text-[11px] text-slate-400">Require explicit cryptographic engineer approval before any PQC migration patch can be exported or committed.</p>
+              </div>
+              <label class="switch-label">
+                <input type="checkbox" id="policy-hitl" checked>
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <!-- Policy 2 -->
+            <div class="glass-panel p-4 flex items-center justify-between gap-4">
+              <div class="space-y-1">
+                <div class="font-bold text-xs text-slate-200 flex items-center gap-2">
+                  <i data-lucide="shield-alert" class="w-4 h-4 text-rose-400"></i>
+                  <span>Strict Quantum Zero-Trust Enforcement</span>
+                </div>
+                <p class="text-[11px] text-slate-400">Automatically classify all classical public-key cryptography (RSA, ECDSA, DSA, DH) as CRITICAL severity.</p>
+              </div>
+              <label class="switch-label">
+                <input type="checkbox" id="policy-zero-trust" checked>
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <!-- Policy 3 -->
+            <div class="glass-panel p-4 flex items-center justify-between gap-4">
+              <div class="space-y-1">
+                <div class="font-bold text-xs text-slate-200 flex items-center gap-2">
+                  <i data-lucide="layers" class="w-4 h-4 text-purple-400"></i>
+                  <span>Default Target NIST Security Category</span>
+                </div>
+                <p class="text-[11px] text-slate-400">Select standard target security strength level for ML-KEM and ML-DSA algorithm synthesis.</p>
+              </div>
+              <select id="policy-pqc-level" class="bg-slate-900 border border-slate-800 rounded px-3 py-1.5 text-xs text-slate-200 font-semibold focus:outline-none focus:border-cyan-400">
+                <option value="3" selected>NIST Category 3 (Default: ML-KEM-768 / ML-DSA-65)</option>
+                <option value="5">NIST Category 5 (Maximum: ML-KEM-1024 / ML-DSA-87)</option>
+              </select>
+            </div>
+
+            <!-- Policy 4 -->
+            <div class="glass-panel p-4 flex items-center justify-between gap-4">
+              <div class="space-y-1">
+                <div class="font-bold text-xs text-slate-200 flex items-center gap-2">
+                  <i data-lucide="eye" class="w-4 h-4 text-amber-400"></i>
+                  <span>Harvest Now, Decrypt Later (HNDL) Threat Alerting</span>
+                </div>
+                <p class="text-[11px] text-slate-400">Elevate priority on encrypted data-at-rest and TLS key exchange flows vulnerable to retrospective capture.</p>
+              </div>
+              <label class="switch-label">
+                <input type="checkbox" id="policy-hndl" checked>
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <!-- Policy 5 -->
+            <div class="glass-panel p-4 flex items-center justify-between gap-4">
+              <div class="space-y-1">
+                <div class="font-bold text-xs text-slate-200 flex items-center gap-2">
+                  <i data-lucide="wifi" class="w-4 h-4 text-emerald-400"></i>
+                  <span>Network MTU Packet Fragmentation Overhead Warning</span>
+                </div>
+                <p class="text-[11px] text-slate-400">Alert developers if PQC public key or ciphertext exceeds the standard 1,500-byte ethernet MTU payload limit.</p>
+              </div>
+              <label class="switch-label">
+                <input type="checkbox" id="policy-mtu" checked>
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <!-- Save Policies Button -->
+            <div class="pt-3 flex items-center gap-3">
+              <button id="btn-save-policies" class="px-5 py-2.5 rounded-lg btn-cyber-primary text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition">
+                <i data-lucide="save" class="w-4 h-4"></i>
+                <span>Save Policy Configuration</span>
+              </button>
+              <span id="policy-save-feedback" class="text-xs text-emerald-400 font-semibold hidden flex items-center gap-1.5">
+                <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                <span>Policy configuration updated and enforced.</span>
+              </span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- TAB 4: ENTERPRISE AUDIT & SOC COMPLIANCE LOGS -->
+        <div id="tab-admin-logs" class="admin-pane hidden p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+            <div>
+              <h3 class="font-bold text-xs uppercase tracking-wider text-slate-200">Enterprise Security Operations Center (SOC) Audit Ledger</h3>
+              <p class="text-xs text-slate-400">Tamper-evident record of user sessions, administrative changes, and cryptographic approval timestamps.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="btn-admin-export-json" class="px-3 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-xs font-semibold text-cyan-300 flex items-center gap-1.5 transition">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                <span>Export System JSON</span>
+              </button>
+              <button id="btn-admin-export-txt" class="px-3 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-xs font-semibold text-purple-300 flex items-center gap-1.5 transition">
+                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                <span>Export System TXT</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="admin-soc-logs" class="terminal-window p-4 h-80 overflow-y-auto space-y-2 text-xs font-mono text-slate-300">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+
+  <!-- SHARED FOOTER -->
+  <footer class="mt-auto border-t border-slate-900 bg-slate-950 py-3.5 px-6 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <span>Quantum-Safe Secure Code Reviewer • Track 1 Agentic AI Cyber Defence</span>
+      <span>NIST FIPS 203 / 204 / 205 Architecture • LangGraph Human-in-the-Loop</span>
+    </div>
+  </footer>
+
+  <!-- App Logic -->
+  <script src="/static/app.js"></script>
+</body>
+</html>

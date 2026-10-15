@@ -71,13 +71,14 @@
 
 | Layer          | Technology                        | Purpose                                      |
 |----------------|-----------------------------------|----------------------------------------------|
-| **Frontend**   | Streamlit 1.38+                   | Interactive dashboard with real-time updates  |
+| **Web UI**     | Cyber SOC (FastAPI + Monaco + Tailwind) | High-performance dashboard with side-by-side VS Code diffs |
 | **Agent Core** | LangGraph 0.2+                    | Deterministic state machine with HITL support |
-| **LLM**        | Gemini 1.5 Pro / Claude 3.5       | Chain of Thought reasoning & analysis         |
+| **LLM Engine** | Gemini 2.5 Flash / 1.5 Pro        | Chain of Thought reasoning & analysis         |
 | **Tools**      | Python `ast` + Regex              | Static code analysis (Python AST, Java regex) |
-| **PQC**        | liboqs-python / Bouncy Castle     | ML-KEM (FIPS 203) & ML-DSA (FIPS 204) patches|
+| **PQC Standards** | NIST FIPS 203 / 204 / 205      | ML-KEM-768 & ML-DSA-65 migration patches      |
 | **Persistence**| LangGraph MemorySaver             | Checkpoint state for interrupt/resume         |
 | **Audit**      | SHA-256 chain hash                | Tamper-evident audit trail (JSON + TXT)       |
+| **Legacy UI**  | Streamlit 1.38+                   | Optional secondary dashboard (`run_streamlit.bat`) |
 
 ---
 
@@ -87,27 +88,25 @@
 - Python 3.11+
 - A Gemini API key (or Anthropic/OpenAI key)
 
-### Installation
+### Running the Application (1-Click Launch)
 
-```bash
-# 1. Clone the repository
-cd hackathon-cybersecurity-agents
-
-# 2. Create virtual environment
-python -m venv .venv
-.venv\Scripts\activate  # Windows
-# source .venv/bin/activate  # Linux/macOS
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Configure API key
-copy .env.example .env
-# Edit .env and add your GOOGLE_API_KEY
-
-# 5. Run the dashboard
-streamlit run app.py
+On Windows, double-click:
+```cmd
+run_app.bat
 ```
+This automatically launches the high-performance **Cyber SOC Web Dashboard** at `http://localhost:8000`.
+
+Or run manually via terminal:
+```bash
+# 1. Activate virtual environment
+.\.venv\Scripts\activate
+
+# 2. Start the Cyber SOC server
+python server.py
+# Opens at: http://localhost:8000
+```
+
+*(Note: If you wish to use the legacy Streamlit interface, run `run_streamlit.bat` or `streamlit run app.py`).*
 
 ### Using the Agent
 

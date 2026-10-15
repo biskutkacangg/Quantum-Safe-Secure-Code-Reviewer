@@ -1,0 +1,404 @@
+/* ============================================================
+   web/styles.css — Premium Cyber SOC Theme
+   Post-Quantum Cryptography Secure Code Reviewer
+   ============================================================ */
+
+:root {
+  --bg-space: #060811;
+  --bg-surface: #0b101e;
+  --bg-card: rgba(15, 23, 42, 0.75);
+  --bg-card-hover: rgba(30, 41, 69, 0.85);
+  --bg-glass: rgba(13, 20, 36, 0.7);
+  --border-subtle: rgba(56, 189, 248, 0.12);
+  --border-glow: rgba(56, 189, 248, 0.45);
+  --border-active: #38bdf8;
+  
+  --cyan-primary: #00f2fe;
+  --cyan-secondary: #38bdf8;
+  --purple-glow: #a855f7;
+  --purple-deep: #7e22ce;
+  --emerald-safe: #10b981;
+  --amber-warn: #f59e0b;
+  --rose-crit: #f43f5e;
+  
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  
+  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  
+  --shadow-glow-cyan: 0 0 25px rgba(0, 242, 254, 0.15);
+  --shadow-glow-purple: 0 0 25px rgba(168, 85, 247, 0.15);
+  --shadow-glow-rose: 0 0 25px rgba(244, 63, 94, 0.2);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-space);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(168, 85, 247, 0.07) 0%, transparent 40%),
+    radial-gradient(circle at 85% 25%, rgba(0, 242, 254, 0.06) 0%, transparent 45%),
+    radial-gradient(circle at 50% 80%, rgba(56, 189, 248, 0.04) 0%, transparent 50%),
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(11, 16, 30, 0.6);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.25);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.5);
+}
+
+/* Glassmorphism Containers */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel:hover {
+  border-color: rgba(56, 189, 248, 0.25);
+}
+
+/* Header & Navigation */
+header.soc-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(6, 8, 17, 0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* State Flow Tracker */
+.flow-step {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.flow-step.active {
+  color: var(--cyan-primary);
+}
+
+.flow-step.active .step-icon {
+  background: rgba(0, 242, 254, 0.15);
+  border-color: var(--cyan-primary);
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+  animation: pulse-ring 2s infinite;
+}
+
+.flow-step.completed {
+  color: var(--emerald-safe);
+}
+
+.flow-step.completed .step-icon {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--emerald-safe);
+}
+
+.flow-step.waiting-hitl {
+  color: var(--amber-warn);
+}
+
+.flow-step.waiting-hitl .step-icon {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: var(--amber-warn);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+  animation: pulse-warn 1.5s infinite;
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(0, 242, 254, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(0, 242, 254, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 242, 254, 0); }
+}
+
+@keyframes pulse-warn {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* CIA Triad Badges & Pills */
+.badge-cia-c {
+  background: rgba(192, 132, 252, 0.15);
+  color: #d8b4fe;
+  border: 1px solid rgba(192, 132, 252, 0.35);
+}
+
+.badge-cia-i {
+  background: rgba(56, 189, 248, 0.15);
+  color: #7dd3fc;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+
+.badge-cia-a {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fde047;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+}
+
+/* Severity Indicators */
+.badge-sev-critical {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fda4af;
+  border: 1px solid rgba(244, 63, 94, 0.4);
+}
+
+.badge-sev-high {
+  background: rgba(249, 115, 22, 0.15);
+  color: #fdba74;
+  border: 1px solid rgba(249, 115, 22, 0.4);
+}
+
+.badge-sev-medium {
+  background: rgba(234, 179, 8, 0.15);
+  color: #fef08a;
+  border: 1px solid rgba(234, 179, 8, 0.35);
+}
+
+/* Monaco Diff Area */
+#monaco-diff-container {
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Neon Buttons */
+.btn-cyber-primary {
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  color: #040914;
+  font-weight: 700;
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-cyber-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(0, 242, 254, 0.55);
+}
+
+.btn-cyber-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-cyber-approve {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-cyber-approve:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
+}
+
+.btn-cyber-reject {
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-cyber-reject:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(244, 63, 94, 0.6);
+}
+
+/* Tab Pills */
+.soc-tab {
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.soc-tab.active {
+  color: var(--cyan-primary);
+  border-bottom-color: var(--cyan-primary);
+  background: rgba(0, 242, 254, 0.05);
+}
+
+/* Terminal logs */
+.terminal-window {
+  background: #040711;
+  font-family: var(--font-mono);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 10px;
+}
+
+/* Radar scan animation */
+@keyframes radar-scan {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-radar {
+  animation: radar-scan 4s linear infinite;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ░░░ LOGIN PORTAL & RBAC STYLES ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+   ════════════════════════════════════════════════════════════════ */
+.login-glow-card {
+  background: rgba(11, 16, 30, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 0 50px rgba(0, 242, 254, 0.12), 0 20px 40px rgba(0, 0, 0, 0.6);
+  border-radius: 20px;
+}
+
+@keyframes shake-card {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+.shake {
+  animation: shake-card 0.4s ease-in-out;
+}
+
+.quick-cred-chip {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-cred-chip:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.5);
+  color: #38bdf8;
+  transform: translateY(-1px);
+}
+
+.quick-cred-chip.admin-chip:hover {
+  background: rgba(244, 63, 94, 0.15);
+  border-color: rgba(244, 63, 94, 0.5);
+  color: #fb7185;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ░░░ ADMIN DASHBOARD STYLES ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+   ════════════════════════════════════════════════════════════════ */
+.admin-tab {
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.admin-tab:hover {
+  color: #f1f5f9;
+}
+
+.admin-tab.active {
+  color: #f43f5e;
+  border-bottom-color: #f43f5e;
+  background: rgba(244, 63, 94, 0.08);
+}
+
+.admin-badge-crimson {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+  border: 1px solid rgba(244, 63, 94, 0.35);
+}
+
+.admin-kpi-card {
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  border-radius: 12px;
+  transition: all 0.25s ease;
+}
+
+.admin-kpi-card:hover {
+  border-color: rgba(244, 63, 94, 0.45);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(244, 63, 94, 0.12);
+}
+
+/* Switch Toggle */
+.switch-label {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch-label input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #334155;
+  transition: .3s;
+  border-radius: 24px;
+  border: 1px solid #475569;
+}
+
+.switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+input:checked + .switch-slider {
+  background-color: #0284c7;
+  border-color: #38bdf8;
+}
+
+input:checked + .switch-slider:before {
+  transform: translateX(20px);
+}

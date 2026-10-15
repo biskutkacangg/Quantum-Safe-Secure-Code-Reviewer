@@ -2,7 +2,10 @@
 # PQC Secure-Code Reviewer Agent — Dependency Manifest
 # ============================================================
 
-# --- Core Framework ---
+# --- Core Framework & Web Server ---
+fastapi>=0.115.0
+uvicorn>=0.30.0
+python-multipart>=0.0.9
 streamlit>=1.38.0
 langgraph>=0.2.0
 langchain-core>=0.3.0

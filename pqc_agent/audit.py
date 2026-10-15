@@ -44,18 +44,22 @@ def _compute_chain_hash(entries: list[dict]) -> str:
 def generate_audit_json(
     audit_trail: list[dict],
     metadata: dict[str, Any] | None = None,
+    latest_only: bool = False,
 ) -> str:
     """
     Generate a JSON audit report with integrity hash and CIA impact analysis.
+    If latest_only is True, filters to only retain the latest human approval records.
 
     Args:
         audit_trail: List of AuditEntry dicts from the agent state.
         metadata: Optional additional metadata (file_name, language, etc.)
+        latest_only: Whether to keep only latest approval events (default False).
 
     Returns:
         Pretty-printed JSON string of the complete audit report.
     """
-    chain_hash = _compute_chain_hash(audit_trail)
+    entries_to_report = filter_latest_audit(audit_trail) if latest_only else audit_trail
+    chain_hash = _compute_chain_hash(entries_to_report)
     meta = dict(metadata or {})
     findings = meta.get("findings", [])
     if findings and "cia_summary" not in meta:
@@ -66,47 +70,69 @@ def generate_audit_json(
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "version": "1.0.0",
             "agent": "PQC Secure-Code Reviewer Agent",
+            "status": meta.get("decision", "pending").upper(),
             "integrity_hash_sha256": chain_hash,
-            "entry_count": len(audit_trail),
+            "entry_count": len(entries_to_report),
             "cia_triad_summary": meta.get("cia_summary", {}),
             "metadata": meta,
         },
-        "entries": audit_trail,
+        "entries": entries_to_report,
     }
 
     return json.dumps(report, indent=2, default=str)
 
 
+def filter_latest_audit(audit_trail: list[dict]) -> list[dict]:
+    """
+    Filter the audit trail to retain only the latest human approval/decision records,
+    discarding raw preliminary system/scanning steps.
+    """
+    if not audit_trail:
+        return []
+
+    # Find human decision or patch approval entries
+    approved_entries = [
+        e for e in audit_trail
+        if e.get("action") in ("HITL_DECISION_APPROVED", "PATCHES_APPROVED", "HITL_DECISION_REJECTED", "PATCHES_REJECTED")
+        or e.get("actor") == "human"
+    ]
+    if approved_entries:
+        return approved_entries
+
+    return [audit_trail[-1]]
+
+
 def generate_audit_txt(
     audit_trail: list[dict],
     metadata: dict[str, Any] | None = None,
+    latest_only: bool = False,
 ) -> str:
     """
-    Generate a human-readable TXT audit report including CIA Triad analysis.
-
-    Args:
-        audit_trail: List of AuditEntry dicts from the agent state.
-        metadata: Optional additional metadata.
-
-    Returns:
-        Formatted text string of the audit report.
+    Generate a clean human-readable TXT audit report including CIA Triad analysis.
+    If latest_only is True, filters out intermediate scanning steps to focus on
+    the latest human approval/decision.
     """
-    chain_hash = _compute_chain_hash(audit_trail)
-    lines: list[str] = []
+    entries_to_report = filter_latest_audit(audit_trail) if latest_only else audit_trail
+    chain_hash = _compute_chain_hash(entries_to_report)
+    meta = dict(metadata or {})
+    decision = meta.get("decision", "pending").upper()
 
+    lines: list[str] = []
     lines.append("=" * 72)
-    lines.append("  PQC SECURE-CODE REVIEWER AGENT — AUDIT TRAIL")
+    lines.append("  PQC SECURE-CODE REVIEWER AGENT - AUDIT TRAIL")
     lines.append("=" * 72)
     lines.append(f"  Generated : {datetime.now(timezone.utc).isoformat()}")
-    lines.append(f"  Entries   : {len(audit_trail)}")
+    if decision in ("APPROVED", "REJECTED"):
+        lines.append(f"  Status    : {decision} (Human-in-the-Loop Verified)")
+    lines.append(f"  Entries   : {len(entries_to_report)}")
     lines.append(f"  Integrity : SHA-256 chain hash = {chain_hash}")
 
-    if metadata:
-        lines.append(f"  File      : {metadata.get('file_name', 'N/A')}")
-        lines.append(f"  Language  : {metadata.get('language', 'N/A')}")
-        cia = metadata.get("cia_summary")
-        if not cia and "findings" in metadata:
-            cia = compute_cia_summary(metadata["findings"])
+    if meta:
+        lines.append(f"  File      : {meta.get('file_name', 'N/A')}")
+        lines.append(f"  Language  : {meta.get('language', 'N/A')}")
+        cia = meta.get("cia_summary")
+        if not cia and "findings" in meta:
+            cia = compute_cia_summary(meta["findings"])
         if cia:
             lines.append("  CIA Triad Impact Breakdown:")
             lines.append(f"    - Confidentiality (HNDL Threat) : {cia.get('Confidentiality', 0)}")
@@ -116,14 +142,29 @@ def generate_audit_txt(
     lines.append("=" * 72)
     lines.append("")
 
-    for i, entry in enumerate(audit_trail, start=1):
-        lines.append(f"  [{i:03d}] {entry.get('timestamp', 'N/A')}")
-        lines.append(f"        Actor  : {entry.get('actor', 'N/A')}")
-        lines.append(f"        Action : {entry.get('action', 'N/A')}")
-        lines.append(f"        Detail : {entry.get('detail', 'N/A')}")
+    for i, entry in enumerate(entries_to_report, start=1):
+        ts = entry.get("timestamp", "N/A")
+        actor = entry.get("actor", "N/A")
+        action = entry.get("action", "N/A")
+        detail = entry.get("detail", "N/A")
+
+        # Strip markdown syntax and emojis for clean plain text
+        clean_detail = (
+            detail.replace("## ✅ ", "")
+            .replace("## ❌ ", "")
+            .replace("## ", "")
+            .replace("**", "")
+            .strip()
+        )
+
+        lines.append(f"  [{i:03d}] {ts}")
+        lines.append(f"        Actor  : {actor}")
+        lines.append(f"        Action : {action}")
+        lines.append(f"        Detail : {clean_detail}")
         if entry.get("metadata"):
             for k, v in entry["metadata"].items():
-                lines.append(f"        {k}: {v}")
+                if v:
+                    lines.append(f"        {k}: {v}")
         lines.append("")
 
     lines.append("=" * 72)

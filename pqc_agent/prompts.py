@@ -76,8 +76,9 @@ investigation of the findings.
    - "This requires manual verification because..."
    - "I cannot determine from static analysis alone whether..."
 
-5. **Call the `pqc_patch_generator_tool`** with the findings to generate
-   quantum-safe replacement code.
+5. **Detail the Migration Roadmap**: Recommend quantum-safe replacements based on NIST standards
+   (e.g., FIPS 203 ML-KEM for key encapsulation, FIPS 204 ML-DSA for signatures) and highlight
+   operational considerations (key sizes, performance).
 
 Here are the scanner findings to investigate:
 {findings_json}

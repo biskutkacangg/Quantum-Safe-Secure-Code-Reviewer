@@ -99,8 +99,8 @@
     patchSelector: document.getElementById('patch-selector'),
     patchFipsPill: document.getElementById('patch-fips-pill'),
     patchNoteBox: document.getElementById('patch-note-box'),
-    btnCopyPatch: document.getElementById('btn-copy-patch'),
-    monacoDiffContainer: document.getElementById('monaco-diff-container'),
+    monacoOriginalContainer: document.getElementById('monaco-original-container'),
+    monacoModifiedContainer: document.getElementById('monaco-modified-container'),
     cotContent: document.getElementById('cot-content'),
     uncertaintyBox: document.getElementById('uncertainty-box'),
     uncertaintyText: document.getElementById('uncertainty-text'),
@@ -341,15 +341,34 @@
         }
       });
 
-      state.monacoDiffEditor = monaco.editor.createDiffEditor(el.monacoDiffContainer, {
+      // Left Editor: Original Vulnerable Code
+      state.monacoOriginalEditor = monaco.editor.create(el.monacoOriginalContainer, {
+        value: '# Original vulnerable code will appear here',
+        language: 'python',
         theme: 'cyberSOCDark',
         readOnly: true,
         automaticLayout: true,
-        renderSideBySide: true,
         fontSize: 12,
         fontFamily: "'JetBrains Mono', monospace",
         minimap: { enabled: false },
         scrollBeyondLastLine: false,
+        lineNumbers: 'on',
+        renderLineHighlight: 'all',
+      });
+
+      // Right Editor: Quantum-Safe Replacement Code
+      state.monacoModifiedEditor = monaco.editor.create(el.monacoModifiedContainer, {
+        value: '# Quantum-safe replacement (NIST standard) will appear here',
+        language: 'python',
+        theme: 'cyberSOCDark',
+        readOnly: true,
+        automaticLayout: true,
+        fontSize: 12,
+        fontFamily: "'JetBrains Mono', monospace",
+        minimap: { enabled: false },
+        scrollBeyondLastLine: false,
+        lineNumbers: 'on',
+        renderLineHighlight: 'all',
       });
 
       state.isMonacoReady = true;
@@ -360,7 +379,7 @@
   }
 
   function updateMonacoDiff(patchIndex) {
-    if (!state.isMonacoReady || !state.monacoDiffEditor) return;
+    if (!state.isMonacoReady || !state.monacoOriginalEditor || !state.monacoModifiedEditor) return;
 
     state.selectedPatchIndex = patchIndex;
     const patch = state.patches[patchIndex] || {
@@ -383,16 +402,12 @@
 
     const lang = state.language === 'java' ? 'java' : 'python';
 
-    if (state.monacoOriginalModel) state.monacoOriginalModel.dispose();
-    if (state.monacoModifiedModel) state.monacoModifiedModel.dispose();
+    // Set clean standalone code without messy git diff markers
+    state.monacoOriginalEditor.setValue(patch.original_code || '');
+    monaco.editor.setModelLanguage(state.monacoOriginalEditor.getModel(), lang);
 
-    state.monacoOriginalModel = monaco.editor.createModel(patch.original_code || '', lang);
-    state.monacoModifiedModel = monaco.editor.createModel(patch.patched_code || '', lang);
-
-    state.monacoDiffEditor.setModel({
-      original: state.monacoOriginalModel,
-      modified: state.monacoModifiedModel,
-    });
+    state.monacoModifiedEditor.setValue(patch.patched_code || '');
+    monaco.editor.setModelLanguage(state.monacoModifiedEditor.getModel(), lang);
   }
 
   window.viewDiffForFinding = function (findingIndex) {
@@ -1145,6 +1160,44 @@
   if (el.btnLoadJava) {
     el.btnLoadJava.addEventListener('click', () => loadSample('VulnerableJava.java'));
   }
+
+  // Smooth & Reactive Sidebar Drawer Controller (Single Clean Action)
+  const btnCollapseSidebar = document.getElementById('btn-collapse-sidebar');
+  const btnRestoreSidebar = document.getElementById('btn-restore-sidebar');
+  const restoreBar = document.getElementById('restore-bar');
+  const leftSidebar = document.getElementById('left-sidebar');
+
+  function collapseSidebar() {
+    if (!leftSidebar) return;
+    leftSidebar.classList.add('sidebar-collapsed');
+    if (restoreBar) restoreBar.classList.remove('hidden');
+    
+    // Smoothly relayout Monaco editors during and after animation
+    let frames = 0;
+    const interval = setInterval(() => {
+      if (state.monacoOriginalEditor) state.monacoOriginalEditor.layout();
+      if (state.monacoModifiedEditor) state.monacoModifiedEditor.layout();
+      frames++;
+      if (frames > 15) clearInterval(interval);
+    }, 25);
+  }
+
+  function expandSidebar() {
+    if (!leftSidebar) return;
+    leftSidebar.classList.remove('sidebar-collapsed');
+    if (restoreBar) restoreBar.classList.add('hidden');
+    
+    let frames = 0;
+    const interval = setInterval(() => {
+      if (state.monacoOriginalEditor) state.monacoOriginalEditor.layout();
+      if (state.monacoModifiedEditor) state.monacoModifiedEditor.layout();
+      frames++;
+      if (frames > 15) clearInterval(interval);
+    }, 25);
+  }
+
+  if (btnCollapseSidebar) btnCollapseSidebar.addEventListener('click', collapseSidebar);
+  if (btnRestoreSidebar) btnRestoreSidebar.addEventListener('click', expandSidebar);
 
   // Code editor updates
   if (el.sourceCodeEditor) {

@@ -18,7 +18,7 @@ This platform integrates:
 2. **Autonomous Chain-of-Thought (CoT) Reasoning**: Powered by an LLM with explicit uncertainty quantification.
 3. **Hard Human-in-the-Loop (HITL) Gate**: Enforced via LangGraph's native stateful `interrupt()` and `Command(resume=...)` primitives.
 4. **Cryptographic Tamper-Evident Auditing**: A blockchain-style SHA-256 hash chain providing non-repudiation across all decisions.
-5. **Dual Operation Modes**: An interactive Streamlit dashboard for security architects and a headless CLI engine for automated CI/CD pipeline gates.
+5. **Multi-Modal Operation Interfaces**: A high-performance **Cyber SOC Web Dashboard** powered by FastAPI (Port 8000) with Monaco side-by-side patch diffing and dual-portal RBAC (Reviewer Portal & Admin SOC Console), a headless CLI engine for automated CI/CD pipeline gates, and an optional legacy Streamlit interface (Port 8501).
 
 ---
 
@@ -70,9 +70,11 @@ graph TD
 ```mermaid
 graph TB
     subgraph "Tier 1: Ingestion & Presentation"
-        UI["Streamlit Dashboard<br/>(Port 8501, Dark Glassmorphism)"]
+        SOC["Cyber SOC Web UI (Port 8000)<br/>FastAPI + Monaco Diff Editor"]
+        RBAC["Dual RBAC Portals<br/>Reviewer & Admin SOC Console"]
         CLI["Headless DevSecOps CLI<br/>(pqc_agent.cli)"]
         HOOK["Git Pre-Commit Hook<br/>(.pre-commit-config.yaml)"]
+        LEGACY["Legacy Streamlit UI<br/>(Port 8501)"]
     end
 
     subgraph "Tier 2: Orchestration & State Machine"
@@ -93,7 +95,9 @@ graph TB
         OUT["JSON & TXT Audit Reports<br/>(audit_outputs/)"]
     end
 
-    UI --> LG
+    SOC --> LG
+    RBAC --> LG
+    LEGACY --> LG
     CLI --> LG
     HOOK --> CLI
 

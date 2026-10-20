@@ -18,7 +18,7 @@ HTML_DIR.mkdir(parents=True, exist_ok=True)
 
 HTML_FILE = HTML_DIR / "Agentic_AI_Cyber_Defence_Proposal_Quantum_Safe_Reviewer.html"
 PDF_FILE = REPORTS_DIR / "Agentic_AI_Cyber_Defence_Proposal_Quantum_Safe_Reviewer.pdf"
-DOWNLOADS_PDF = Path(r"C:\Users\User\Downloads\Agentic_AI_Cyber_Defence_Proposal_Quantum_Safe_Reviewer.pdf")
+DOWNLOADS_PDF = Path.home() / "Downloads" / "Agentic_AI_Cyber_Defence_Proposal_Quantum_Safe_Reviewer.pdf"
 EDGE_EXE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 
 PROJECT_TITLE = "Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool"
@@ -253,6 +253,7 @@ html_content = f"""<!DOCTYPE html>
                 <ul>
                     <li><strong>DevSecOps &amp; CI/CD Engineers:</strong> Automated pre-commit hooks and headless CLI gating (<span class="code-term">--fail-on CRITICAL</span>) preventing quantum-fragile code commits.</li>
                     <li><strong>AppSec Security Architects:</strong> Explainable Chain-of-Thought threat analysis categorizing vulnerabilities across the complete CIA Triad.</li>
+                    <li><strong>SOC Administrators &amp; CISOs:</strong> Unified Admin Console with live Threat DB catalog, policy governance, and SHA-256 ledger integrity verifier.</li>
                     <li><strong>Compliance &amp; Cryptography Officers:</strong> Non-repudiable SHA-256 audit trails fulfilling White House NSM-10 and NIST SP 800-227 mandates.</li>
                 </ul>
                 <div class="code-box">
@@ -455,10 +456,10 @@ AgentState = {{
                 <div>
                     <p><strong>Current Active Deliverables (Ready for Inspection):</strong></p>
                     <ul>
-                        <li><strong>Streamlit UI:</strong> 6 tabs (Findings, CIA Triad, CoT, Patches, Limitations, Audit).</li>
-                        <li><strong>DevSecOps CLI:</strong> Headless CI/CD pipeline scanner (<span class="code-term">pqc_agent.cli</span>).</li>
-                        <li><strong>Automated Test Suites:</strong> 18 unit/integration test assertions passing.</li>
-                        <li><strong>Active Reports:</strong> 4-Page SECRYPT 2025 Literature Review + 14-Primitive Replacement Catalog.</li>
+                        <li><strong>Cyber SOC Web Dashboard (Port 8000):</strong> High-performance FastAPI backend, Monaco side-by-side patch viewer, and dynamic audio synthesizer.</li>
+                        <li><strong>Dual-Portal RBAC Governance:</strong> Reviewer Portal (HITL approval modal &amp; audit download) + Admin SOC Console (Threat DB, diagnostics, policy governance &amp; SHA-256 ledger verifier).</li>
+                        <li><strong>DevSecOps CLI &amp; CI/CD:</strong> Headless pipeline scanner (<span class="code-term">pqc_agent.cli</span>) with pre-commit hooks and Dockerfile.</li>
+                        <li><strong>Legacy Interface &amp; Reports:</strong> Fallback Streamlit UI (Port 8501) + 6 publication-grade research reports &amp; interactive digital poster.</li>
                     </ul>
                 </div>
                 <div>

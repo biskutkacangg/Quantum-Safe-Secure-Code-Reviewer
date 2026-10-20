@@ -18,7 +18,7 @@ HTML_DIR.mkdir(parents=True, exist_ok=True)
 
 HTML_FILE = HTML_DIR / "Digital_Poster_Quantum_Safe_Agent.html"
 PDF_FILE = REPORTS_DIR / "Digital_Poster_Quantum_Safe_Agent.pdf"
-DOWNLOADS_PDF = Path(r"C:\Users\User\Downloads\Digital_Poster_Quantum_Safe_Agent.pdf")
+DOWNLOADS_PDF = Path.home() / "Downloads" / "Digital_Poster_Quantum_Safe_Agent.pdf"
 POSTER_IMG = REPORTS_DIR / "Digital_Poster_Quantum_Safe_Agent.jpg"
 EDGE_EXE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 
@@ -249,7 +249,7 @@ html_content = f"""<!DOCTYPE html>
 
     <div class="footer-bar">
         <span>Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool</span>
-        <span>Repository: natasyafrzan-hub/Quantum-Safe-Secure-Code-Reviewer &bull; Hack@AI 2026</span>
+        <span>Repository: biskutkacangg/Quantum-Safe-Secure-Code-Reviewer &bull; Hack@AI 2026</span>
     </div>
 </div>
 

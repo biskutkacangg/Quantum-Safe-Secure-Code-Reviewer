@@ -19,7 +19,7 @@ HTML_DIR.mkdir(parents=True, exist_ok=True)
 
 HTML_FILE = HTML_DIR / "Pitch_Deck_and_Presentation_Script_Quantum_Safe_Reviewer.html"
 PDF_FILE = REPORTS_DIR / "Pitch_Deck_and_Presentation_Script_Quantum_Safe_Reviewer.pdf"
-DOWNLOADS_PDF = Path(r"C:\Users\User\Downloads\Pitch_Deck_and_Presentation_Script_Quantum_Safe_Reviewer.pdf")
+DOWNLOADS_PDF = Path.home() / "Downloads" / "Pitch_Deck_and_Presentation_Script_Quantum_Safe_Reviewer.pdf"
 EDGE_EXE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 
 PROJECT_TITLE = "Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool"
@@ -365,10 +365,11 @@ Hash_n = SHA256(Hash_n-1 + Timestamp + Actor + Action + Detail)
             <div class="card" style="padding:20px 22px;">
                 <h4 style="font-size:12.5pt; margin-bottom:10px;">🚀 Active Deliverables &amp; Roadmap</h4>
                 <p style="line-height:1.7;">
-                    &bull; Interactive Streamlit Dashboard (Port 8501)<br>
+                    &bull; Cyber SOC Web UI (Port 8000) with Monaco Diffs<br>
+                    &bull; Dual-Portal RBAC: Reviewer + Admin SOC Console<br>
                     &bull; DevSecOps Headless CI/CD Scanner (<code>pqc_agent.cli</code>)<br>
-                    &bull; Interactive Digital Poster Web App<br>
-                    &bull; Next: LLVM/Clang C/C++ AST for embedded IoT systems
+                    &bull; 6 Publication-Grade Reports &amp; Digital Poster<br>
+                    &bull; Legacy Streamlit Interface (Port 8501)
                 </p>
             </div>
         </div>

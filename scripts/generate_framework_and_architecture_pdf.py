@@ -21,7 +21,7 @@ HTML_DIR.mkdir(parents=True, exist_ok=True)
 
 HTML_FILE = HTML_DIR / "System_Framework_and_Architecture_Dossier.html"
 PDF_FILE = REPORTS_DIR / "System_Framework_and_Architecture_Dossier.pdf"
-DOWNLOADS_PDF = Path(r"C:\Users\User\Downloads\System_Framework_and_Architecture_Dossier.pdf")
+DOWNLOADS_PDF = Path.home() / "Downloads" / "System_Framework_and_Architecture_Dossier.pdf"
 EDGE_EXE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 
 PROJECT_TITLE = "Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool"
@@ -489,8 +489,8 @@ html_content = f"""<!DOCTYPE html>
             <tbody>
                 <tr>
                     <td><strong>1. Presentation &amp; Delivery Tier</strong></td>
-                    <td>Streamlit (Port 8501) &bull; Headless CLI (<code>pqc_agent.cli</code>) &bull; Docker</td>
-                    <td>Interactive GUI dashboard for security architects; headless scanner for GitHub Actions &amp; GitLab pre-commit CI/CD shift-left gates.</td>
+                    <td>Cyber SOC Web UI (FastAPI Port 8000, Monaco Diff) &bull; Dual RBAC Portals &bull; Headless CLI &bull; Docker &bull; Legacy Streamlit (8501)</td>
+                    <td>High-performance Cyber SOC dashboard with side-by-side Monaco patch diffing; Admin Console for Threat DB catalog, live diagnostics &amp; SHA-256 ledger verification; headless CLI for CI/CD gates.</td>
                 </tr>
                 <tr>
                     <td><strong>2. Agentic Orchestration Tier</strong></td>

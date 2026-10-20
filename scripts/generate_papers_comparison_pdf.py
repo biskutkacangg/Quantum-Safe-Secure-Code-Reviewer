@@ -16,14 +16,15 @@ import subprocess
 import shutil
 from pathlib import Path
 
-WORKSPACE = Path(r"c:\Users\User\hackathon-cybersecurity-agents")
+SCRIPTS_DIR = Path(__file__).resolve().parent
+WORKSPACE = SCRIPTS_DIR.parent
 REPORTS_DIR = WORKSPACE / "reports"
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 HTML_DIR = REPORTS_DIR / "html"
 HTML_DIR.mkdir(parents=True, exist_ok=True)
 HTML_FILE = HTML_DIR / "PQC_Model_Parameters_and_Results_Paper_Comparison.html"
 PDF_FILE = REPORTS_DIR / "PQC_Model_Parameters_and_Results_Paper_Comparison.pdf"
-DOWNLOADS_PDF = Path(r"C:\Users\User\Downloads\PQC_Model_Parameters_and_Results_Paper_Comparison.pdf")
+DOWNLOADS_PDF = Path.home() / "Downloads" / "PQC_Model_Parameters_and_Results_Paper_Comparison.pdf"
 EDGE_EXE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 
 PROJECT_TITLE = "Design and Development of a Post-Quantum Cryptography-Based Secure Code Review Tool"
@@ -841,8 +842,11 @@ result = subprocess.run(cmd, capture_output=True, text=True)
 
 if PDF_FILE.exists() and PDF_FILE.stat().st_size > 0:
     print(f"[SUCCESS] PDF generated: {PDF_FILE} ({PDF_FILE.stat().st_size} bytes)")
-    shutil.copy2(PDF_FILE, DOWNLOADS_PDF)
-    print(f"[COPIED] Copied to Downloads: {DOWNLOADS_PDF}")
+    try:
+        shutil.copy2(PDF_FILE, DOWNLOADS_PDF)
+        print(f"[COPIED] Copied to Downloads: {DOWNLOADS_PDF}")
+    except Exception as e:
+        print(f"[WARN] Could not copy to Downloads: {e}")
     
     pdf_bytes = PDF_FILE.read_bytes()
     page_matches = re.findall(rb"/Type\s*/Page\b", pdf_bytes)

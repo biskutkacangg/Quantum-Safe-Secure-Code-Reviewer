@@ -17,7 +17,7 @@ HTML_DIR = REPORTS_DIR / "html"
 HTML_DIR.mkdir(parents=True, exist_ok=True)
 HTML_FILE = HTML_DIR / "PQC_Vulnerabilities_and_Replacements_Catalog.html"
 PDF_FILE = REPORTS_DIR / "PQC_Vulnerabilities_and_Replacements_Catalog.pdf"
-DOWNLOADS_PDF = Path(r"C:\Users\User\Downloads\PQC_Vulnerabilities_and_Replacements_Catalog.pdf")
+DOWNLOADS_PDF = Path.home() / "Downloads" / "PQC_Vulnerabilities_and_Replacements_Catalog.pdf"
 EDGE_EXE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 
 html_content = """<!DOCTYPE html>
@@ -595,8 +595,11 @@ if PDF_FILE.exists() and PDF_FILE.stat().st_size > 0:
     
     # Copy to Downloads folder
     import shutil
-    shutil.copy2(PDF_FILE, DOWNLOADS_PDF)
-    print(f"[COPIED] Copied to Downloads folder: {DOWNLOADS_PDF}")
+    try:
+        shutil.copy2(PDF_FILE, DOWNLOADS_PDF)
+        print(f"[COPIED] Copied to Downloads folder: {DOWNLOADS_PDF}")
+    except Exception as e:
+        print(f"[WARN] Could not copy to Downloads folder: {e}")
     
     # Check page count
     pdf_bytes = PDF_FILE.read_bytes()

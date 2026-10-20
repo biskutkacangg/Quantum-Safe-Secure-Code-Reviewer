@@ -3,7 +3,7 @@
 > **Track 1: Agentic Cyber Defence** — An AI-powered static analysis agent that detects quantum-vulnerable cryptographic primitives in Python/Java source code, generates NIST-standardised ML-KEM & ML-DSA migration patches, and enforces Human-in-the-Loop approval with a complete audit trail.
 
 ![Python](https://img.shields.io/badge/Python-3.11+-blue?style=flat-square&logo=python)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.38+-red?style=flat-square&logo=streamlit)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=flat-square&logo=fastapi)
 ![LangGraph](https://img.shields.io/badge/LangGraph-0.2+-green?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)
 
@@ -25,11 +25,12 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    STREAMLIT DASHBOARD                       │
+│                 CYBER SOC WEB DASHBOARD (Port 8000)         │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────────┐ │
-│  │  Upload   │  │ Findings │  │   Diff   │  │   Audit    │ │
-│  │  Panel    │  │  Cards   │  │   View   │  │  Download  │ │
+│  │  Upload   │  │ Findings │  │  Monaco  │  │   Audit    │ │
+│  │  Panel    │  │  Cards   │  │ Diff(VS) │  │  Download  │ │
 │  └─────┬────┘  └──────────┘  └──────────┘  └────────────┘ │
+│        │   [Reviewer Portal & Admin SOC Console (RBAC)]     │
 │        │              ▲             ▲             ▲         │
 │        │              │             │             │         │
 │  ┌─────▼──────────────┴─────────────┴─────────────┴───┐    │
@@ -137,10 +138,10 @@ python server.py
    - Triggers `pqc_patch_generator_tool` to create migration code
 
 4. **HUMAN APPROVAL** — The graph **pauses** using `interrupt()`:
-   - The Streamlit UI renders an interactive review dashboard
-   - The human reviewer sees: findings, CoT, side-by-side diffs, limitations
-   - The graph **resumes only** when the human clicks Approve or Reject
-   - This is enforced by LangGraph's `Command(resume=...)` mechanism
+   - The Cyber SOC Web UI renders an interactive review modal with side-by-side Monaco code diffs
+   - The human reviewer sees: findings, CoT, side-by-side diffs, limitations, and CIA Triad impacts
+   - The graph **resumes only** when the authenticated human clicks Approve or Reject
+   - Enforced by LangGraph's stateful `Command(resume=...)` mechanism
 
 5. **FINALISE** — Generates the final audit trail, marks patches as approved/rejected, closes the workflow.
 

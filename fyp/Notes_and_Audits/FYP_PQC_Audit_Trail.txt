@@ -1,0 +1,30 @@
+========================================================================
+  PQC SECURE-CODE REVIEWER AGENT - AUDIT TRAIL
+========================================================================
+  Generated : 2026-10-19T17:56:20.529613+00:00
+  Status    : APPROVED (Human-in-the-Loop Verified)
+  Entries   : 2
+  Integrity : SHA-256 chain hash = bc9253f34ec8f08310c9b6347831dba5416a48cf4b1cf263bf9ff3a7def0b9a4
+  File      : sample.py
+  Language  : python
+  CIA Triad Impact Breakdown:
+    - Confidentiality (HNDL Threat) : 11
+    - Integrity (Quantum Forgery)   : 13
+    - Availability (PQC Overhead)   : 0
+========================================================================
+
+  [001] 2026-10-19T17:56:15.981852+00:00
+        Actor  : human
+        Action : HITL_DECISION_APPROVED
+        Detail : Human reviewer approved the proposed patches.
+        decision: approved
+
+  [002] 2026-10-19T17:56:15.983385+00:00
+        Actor  : system
+        Action : PATCHES_APPROVED
+        Detail : PQC migration patches patches approved. Reviewer feedback: No additional comments.
+        decision: approved
+
+========================================================================
+  END OF AUDIT TRAIL
+========================================================================

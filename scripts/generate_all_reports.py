@@ -24,6 +24,9 @@ ACTIVE_REPORT_SCRIPTS = [
     ("High-Impact Digital Poster (1-Page PDF & Image)", "generate_poster_pdf.py"),
     ("Paper Comparative Review & Literature Review (4-Page)", "generate_papers_comparison_pdf.py"),
     ("Cryptographic Replacements Catalog (NIST FIPS 203/204)", "generate_catalog_pdf.py"),
+    ("Lecturer Academic Presentation Slide Deck: AST Tree & Compiler Architecture (9-Slide)", "generate_lecturer_presentation_pdf.py"),
+    ("Lecturer Presentation Master Script & Academic Defence Companion Guide (A4 Portrait)", "generate_presentation_script_companion_pdf.py"),
+    ("NOTA RINGKAS ALL TERMS AND CODING (A4 Portrait Study Guide)", "generate_nota_ringkas_pdf.py"),
 ]
 
 def run_all():

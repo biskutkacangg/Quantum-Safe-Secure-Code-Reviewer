@@ -1,0 +1,410 @@
+{
+  "audit_report": {
+    "generated_at": "2026-10-19T17:56:22.323472+00:00",
+    "version": "1.0.0",
+    "agent": "PQC Secure-Code Reviewer Agent",
+    "status": "APPROVED",
+    "integrity_hash_sha256": "bc9253f34ec8f08310c9b6347831dba5416a48cf4b1cf263bf9ff3a7def0b9a4",
+    "entry_count": 2,
+    "cia_triad_summary": {
+      "Confidentiality": 11,
+      "Integrity": 13,
+      "Availability": 0
+    },
+    "metadata": {
+      "file_name": "sample.py",
+      "language": "python",
+      "decision": "approved",
+      "findings_count": 21,
+      "patches_count": 21,
+      "findings": [
+        {
+          "finding_id": "127165e6",
+          "line_number": 14,
+          "code_snippet": "from cryptography.hazmat.primitives.asymmetric import rsa, ec, padding, dsa",
+          "algorithm_detected": "RSA",
+          "category": "key_exchange",
+          "severity": "CRITICAL",
+          "cia_triad": [
+            "Confidentiality",
+            "Integrity"
+          ],
+          "confidence": 0.95,
+          "rationale": "Import of 'cryptography.hazmat.primitives.asymmetric.rsa' indicates usage of RSA, which is quantum-vulnerable.",
+          "quantum_threat_level": "Shor's algorithm can factor RSA moduli in polynomial time on a cryptographically-relevant quantum computer (CRQC), completely breaking RSA key exchange and encryption.",
+          "detection_method": "ast_import",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "7211f6fa",
+          "line_number": 14,
+          "code_snippet": "from cryptography.hazmat.primitives.asymmetric import rsa, ec, padding, dsa",
+          "algorithm_detected": "ECDSA",
+          "category": "digital_signature",
+          "severity": "CRITICAL",
+          "cia_triad": [
+            "Integrity"
+          ],
+          "confidence": 0.95,
+          "rationale": "Import of 'cryptography.hazmat.primitives.asymmetric.ec' indicates usage of ECDSA, which is quantum-vulnerable.",
+          "quantum_threat_level": "ECDSA relies on ECDLP; Shor's algorithm breaks it entirely. Signature forgery becomes trivial on a CRQC.",
+          "detection_method": "ast_import",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "0fc1439f",
+          "line_number": 14,
+          "code_snippet": "from cryptography.hazmat.primitives.asymmetric import rsa, ec, padding, dsa",
+          "algorithm_detected": "DSA",
+          "category": "digital_signature",
+          "severity": "CRITICAL",
+          "cia_triad": [
+            "Integrity"
+          ],
+          "confidence": 0.95,
+          "rationale": "Import of 'cryptography.hazmat.primitives.asymmetric.dsa' indicates usage of DSA, which is quantum-vulnerable.",
+          "quantum_threat_level": "DSA depends on the discrete logarithm problem, broken by Shor's.",
+          "detection_method": "ast_import",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "4b3019fb",
+          "line_number": 17,
+          "code_snippet": "from Crypto.PublicKey import RSA as PyCryptoRSA",
+          "algorithm_detected": "RSA",
+          "category": "key_exchange",
+          "severity": "CRITICAL",
+          "cia_triad": [
+            "Confidentiality",
+            "Integrity"
+          ],
+          "confidence": 0.95,
+          "rationale": "Import of 'Crypto.PublicKey.RSA' indicates usage of RSA, which is quantum-vulnerable.",
+          "quantum_threat_level": "Shor's algorithm can factor RSA moduli in polynomial time on a cryptographically-relevant quantum computer (CRQC), completely breaking RSA key exchange and encryption.",
+          "detection_method": "ast_import",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "81a931ce",
+          "line_number": 18,
+          "code_snippet": "from Crypto.Cipher import DES, AES, DES3",
+          "algorithm_detected": "DES",
+          "category": "symmetric_encryption",
+          "severity": "CRITICAL",
+          "cia_triad": [
+            "Confidentiality"
+          ],
+          "confidence": 0.95,
+          "rationale": "Import of 'Crypto.Cipher.DES' indicates usage of DES, which is quantum-vulnerable.",
+          "quantum_threat_level": "DES is already broken classically (56-bit key). Grover's reduces brute force to ~2^28 operations.",
+          "detection_method": "ast_import",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "593e0f9f",
+          "line_number": 18,
+          "code_snippet": "from Crypto.Cipher import DES, AES, DES3",
+          "algorithm_detected": "DES",
+          "category": "symmetric_encryption",
+          "severity": "CRITICAL",
+          "cia_triad": [
+            "Confidentiality"
+          ],
+          "confidence": 0.95,
+          "rationale": "Import of 'Crypto.Cipher.DES3' indicates usage of DES, which is quantum-vulnerable.",
+          "quantum_threat_level": "DES is already broken classically (56-bit key). Grover's reduces brute force to ~2^28 operations.",
+          "detection_method": "ast_import",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "bf1e45eb",
+          "line_number": 24,
+          "code_snippet": "    private_key = rsa.generate_private_key(",
+          "algorithm_detected": "RSA",
+          "category": "key_exchange",
+          "severity": "CRITICAL",
+          "cia_triad": [
+            "Confidentiality",
+            "Integrity"
+          ],
+          "confidence": 0.85,
+          "rationale": "Call to 'rsa.generate_private_key(public_exponent=65537, key_size=2048)' matches RSA usage pattern.",
+          "quantum_threat_level": "Shor's algorithm can factor RSA moduli in polynomial time on a cryptographically-relevant quantum computer (CRQC), completely breaking RSA key exchange and encryption.",
+          "detection_method": "ast_call",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "c2b93374",
+          "line_number": 35,
+          "code_snippet": "    private_key = ec.generate_private_key(ec.SECP256R1())",
+          "algorithm_detected": "ECDSA",
+          "category": "digital_signature",
+          "severity": "CRITICAL",
+          "cia_triad": [
+            "Integrity"
+          ],
+          "confidence": 0.85,
+          "rationale": "Call to 'ec.generate_private_key(ec.SECP256R1())' matches ECDSA usage pattern.",
+          "quantum_threat_level": "ECDSA relies on ECDLP; Shor's algorithm breaks it entirely. Signature forgery becomes trivial on a CRQC.",
+          "detection_method": "ast_call",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "65c08610",
+          "line_number": 36,
+          "code_snippet": "    signature = private_key.sign(",
+          "algorithm_detected": "ECDSA",
+          "category": "digital_signature",
+          "severity": "CRITICAL",
+          "cia_triad": [
+            "Integrity"
+          ],
+          "confidence": 0.85,
+          "rationale": "Call to 'private_key.sign(message, ec.ECDSA(hashes.SHA256()))' matches ECDSA usage pattern.",
+          "quantum_threat_level": "ECDSA relies on ECDLP; Shor's algorithm breaks it entirely. Signature forgery becomes trivial on a CRQC.",
+          "detection_method": "ast_call",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "ddd95e53",
+          "line_number": 38,
+          "code_snippet": "        ec.ECDSA(hashes.SHA256()),",
+          "algorithm_detected": "ECDSA",
+          "category": "digital_signature",
+          "severity": "CRITICAL",
+          "cia_triad": [
+            "Integrity"
+          ],
+          "confidence": 0.85,
+          "rationale": "Call to 'ec.ECDSA(hashes.SHA256())' matches ECDSA usage pattern.",
+          "quantum_threat_level": "ECDSA relies on ECDLP; Shor's algorithm breaks it entirely. Signature forgery becomes trivial on a CRQC.",
+          "detection_method": "ast_call",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "039d1fbc",
+          "line_number": 46,
+          "code_snippet": "    private_key = dsa.generate_private_key(key_size=2048)",
+          "algorithm_detected": "DSA",
+          "category": "digital_signature",
+          "severity": "CRITICAL",
+          "cia_triad": [
+            "Integrity"
+          ],
+          "confidence": 0.85,
+          "rationale": "Call to 'dsa.generate_private_key(key_size=2048)' matches DSA usage pattern.",
+          "quantum_threat_level": "DSA depends on the discrete logarithm problem, broken by Shor's.",
+          "detection_method": "ast_call",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "24fb1520",
+          "line_number": 53,
+          "code_snippet": "    cipher = DES.new(key, DES.MODE_ECB)",
+          "algorithm_detected": "DES",
+          "category": "symmetric_encryption",
+          "severity": "CRITICAL",
+          "cia_triad": [
+            "Confidentiality"
+          ],
+          "confidence": 0.85,
+          "rationale": "Call to 'DES.new(key, DES.MODE_ECB)' matches DES usage pattern.",
+          "quantum_threat_level": "DES is already broken classically (56-bit key). Grover's reduces brute force to ~2^28 operations.",
+          "detection_method": "ast_call",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "d17b70dd",
+          "line_number": 60,
+          "code_snippet": "    cipher = DES3.new(key, DES3.MODE_ECB)",
+          "algorithm_detected": "DES",
+          "category": "symmetric_encryption",
+          "severity": "CRITICAL",
+          "cia_triad": [
+            "Confidentiality"
+          ],
+          "confidence": 0.85,
+          "rationale": "Call to 'DES3.new(key, DES3.MODE_ECB)' matches DES usage pattern.",
+          "quantum_threat_level": "DES is already broken classically (56-bit key). Grover's reduces brute force to ~2^28 operations.",
+          "detection_method": "ast_call",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "75f5452a",
+          "line_number": 67,
+          "code_snippet": "    return hashlib.md5(data).hexdigest()",
+          "algorithm_detected": "MD5",
+          "category": "hashing",
+          "severity": "CRITICAL",
+          "cia_triad": [
+            "Integrity"
+          ],
+          "confidence": 0.85,
+          "rationale": "Call to 'hashlib.md5(data).hexdigest()' matches MD5 usage pattern.",
+          "quantum_threat_level": "MD5 is already broken classically (collision attacks). Grover's further halves preimage resistance to 64 bits.",
+          "detection_method": "ast_call",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "a8111a99",
+          "line_number": 67,
+          "code_snippet": "    return hashlib.md5(data).hexdigest()",
+          "algorithm_detected": "MD5",
+          "category": "hashing",
+          "severity": "CRITICAL",
+          "cia_triad": [
+            "Integrity"
+          ],
+          "confidence": 0.85,
+          "rationale": "Call to 'hashlib.md5(data)' matches MD5 usage pattern.",
+          "quantum_threat_level": "MD5 is already broken classically (collision attacks). Grover's further halves preimage resistance to 64 bits.",
+          "detection_method": "ast_call",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "bf0f976d",
+          "line_number": 16,
+          "code_snippet": "from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes",
+          "algorithm_detected": "3DES",
+          "category": "symmetric_encryption",
+          "severity": "HIGH",
+          "cia_triad": [
+            "Confidentiality"
+          ],
+          "confidence": 0.95,
+          "rationale": "Import of 'cryptography.hazmat.primitives.ciphers.algorithms' indicates usage of 3DES, which is quantum-vulnerable.",
+          "quantum_threat_level": "Triple-DES has a 112-bit effective key length. Grover's halves it to ~56 bits \u2014 inadequate for long-term security.",
+          "detection_method": "ast_import",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "d3c978a2",
+          "line_number": 60,
+          "code_snippet": "    cipher = DES3.new(key, DES3.MODE_ECB)",
+          "algorithm_detected": "3DES",
+          "category": "symmetric_encryption",
+          "severity": "HIGH",
+          "cia_triad": [
+            "Confidentiality"
+          ],
+          "confidence": 0.85,
+          "rationale": "Call to 'DES3.new(key, DES3.MODE_ECB)' matches 3DES usage pattern.",
+          "quantum_threat_level": "Triple-DES has a 112-bit effective key length. Grover's halves it to ~56 bits \u2014 inadequate for long-term security.",
+          "detection_method": "ast_call",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "d2ea6885",
+          "line_number": 73,
+          "code_snippet": "    return hashlib.sha1(data).hexdigest()",
+          "algorithm_detected": "SHA1",
+          "category": "hashing",
+          "severity": "HIGH",
+          "cia_triad": [
+            "Integrity"
+          ],
+          "confidence": 0.85,
+          "rationale": "Call to 'hashlib.sha1(data).hexdigest()' matches SHA1 usage pattern.",
+          "quantum_threat_level": "SHA-1 has known collision attacks. Grover's halves preimage resistance to 80 bits \u2014 below recommended thresholds.",
+          "detection_method": "ast_call",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "295b19f3",
+          "line_number": 73,
+          "code_snippet": "    return hashlib.sha1(data).hexdigest()",
+          "algorithm_detected": "SHA1",
+          "category": "hashing",
+          "severity": "HIGH",
+          "cia_triad": [
+            "Integrity"
+          ],
+          "confidence": 0.85,
+          "rationale": "Call to 'hashlib.sha1(data)' matches SHA1 usage pattern.",
+          "quantum_threat_level": "SHA-1 has known collision attacks. Grover's halves preimage resistance to 80 bits \u2014 below recommended thresholds.",
+          "detection_method": "ast_call",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "0960d352",
+          "line_number": 80,
+          "code_snippet": "    cipher = Cipher(algorithms.AES(key), modes.CBC(iv))",
+          "algorithm_detected": "AES-128",
+          "category": "symmetric_encryption",
+          "severity": "MEDIUM",
+          "cia_triad": [
+            "Confidentiality"
+          ],
+          "confidence": 0.85,
+          "rationale": "Call to 'Cipher(algorithms.AES(key), modes.CBC(iv))' matches AES-128 usage pattern.",
+          "quantum_threat_level": "Grover's algorithm halves the effective key length. AES-128 offers only 64-bit quantum security \u2014 upgrade to AES-256.",
+          "detection_method": "ast_call",
+          "file_path": "sample.py",
+          "language": "python"
+        },
+        {
+          "finding_id": "388f82d4",
+          "line_number": 80,
+          "code_snippet": "    cipher = Cipher(algorithms.AES(key), modes.CBC(iv))",
+          "algorithm_detected": "AES-128",
+          "category": "symmetric_encryption",
+          "severity": "MEDIUM",
+          "cia_triad": [
+            "Confidentiality"
+          ],
+          "confidence": 0.85,
+          "rationale": "Call to 'algorithms.AES(key)' matches AES-128 usage pattern.",
+          "quantum_threat_level": "Grover's algorithm halves the effective key length. AES-128 offers only 64-bit quantum security \u2014 upgrade to AES-256.",
+          "detection_method": "ast_call",
+          "file_path": "sample.py",
+          "language": "python"
+        }
+      ],
+      "cia_summary": {
+        "Confidentiality": 11,
+        "Integrity": 13,
+        "Availability": 0
+      }
+    }
+  },
+  "entries": [
+    {
+      "timestamp": "2026-10-19T17:56:15.981852+00:00",
+      "actor": "human",
+      "action": "HITL_DECISION_APPROVED",
+      "detail": "Human reviewer approved the proposed patches.",
+      "metadata": {
+        "decision": "approved",
+        "feedback": ""
+      }
+    },
+    {
+      "timestamp": "2026-10-19T17:56:15.983385+00:00",
+      "actor": "system",
+      "action": "PATCHES_APPROVED",
+      "detail": "PQC migration patches patches approved. Reviewer feedback: No additional comments.",
+      "metadata": {
+        "decision": "approved"
+      }
+    }
+  ]
+}
